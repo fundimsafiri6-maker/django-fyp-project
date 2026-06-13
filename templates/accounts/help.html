@@ -1,0 +1,755 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Help & Support | AI Complaints System{% endblock %}
+
+{% block header_title %}<i class="fas fa-question-circle"></i> Help & Support{% endblock %}
+{% block header_subtitle %}Find answers and get assistance{% endblock %}
+
+{% block extra_css %}
+<style>
+    .help-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .layout-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .faq-section {
+        flex: 1;
+    }
+
+    .faq-item {
+        margin-bottom: 20px;
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+    }
+
+    .faq-question {
+        padding: 18px;
+        background: #f9fafb;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .faq-question:hover {
+        background: #f0f4f8;
+    }
+
+    .faq-question.active {
+        background: #1e3a8a;
+        color: white;
+    }
+
+    .faq-answer {
+        padding: 18px;
+        display: none;
+        line-height: 1.6;
+        color: #555;
+    }
+
+    .faq-answer.show {
+        display: block;
+    }
+
+    .help-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin: 30px 0;
+    }
+
+    .help-link-card {
+        background: white;
+        padding: 25px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        text-align: center;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+    .help-link-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+
+    .help-link-card i {
+        font-size: 32px;
+        color: #1e3a8a;
+        margin-bottom: 12px;
+    }
+
+    .help-link-card h4 {
+        margin: 0 0 8px;
+        color: #333;
+    }
+
+    .help-link-card p {
+        margin: 0;
+        font-size: 13px;
+        color: #999;
+    }
+
+    .contact-section {
+        background: #f0f9ff;
+        padding: 25px;
+        border-radius: 8px;
+        border-left: 4px solid #1e3a8a;
+        margin-top: 30px;
+    }
+
+    .contact-section h3 {
+        margin-top: 0;
+        color: #0c1e3c;
+    }
+
+    .contact-info {
+        display: grid;
+        gap: 12px;
+    }
+
+    .contact-info-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .contact-info-item i {
+        width: 24px;
+        color: #1e3a8a;
+        font-size: 18px;
+    }
+
+    .contact-info-item span {
+        color: #333;
+        font-size: 14px;
+    }
+
+    /* CHATBOT STYLES */
+    .chatbot-widget {
+        background: white;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        display: flex;
+        flex-direction: column;
+        height: 600px;
+        position: sticky;
+        top: 100px;
+    }
+
+    .chatbot-header {
+        background: linear-gradient(135deg, #0c1e3c 0%, #1e3a8a 100%);
+        color: white;
+        padding: 18px;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chatbot-header h3 {
+        margin: 0;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .chatbot-header .close-btn {
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 20px;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+    }
+
+    .chatbot-header .close-btn:hover {
+        background: rgba(255,255,255,0.3);
+    }
+
+    .chatbot-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        background: #f9fafb;
+    }
+
+    .message {
+        display: flex;
+        margin-bottom: 12px;
+        animation: messageSlide 0.3s ease;
+    }
+
+    @keyframes messageSlide {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .message.user {
+        justify-content: flex-end;
+    }
+
+    .message.bot {
+        justify-content: flex-start;
+    }
+
+    .message-content {
+        max-width: 80%;
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    .message.user .message-content {
+        background: #1e3a8a;
+        color: white;
+        border-radius: 12px 4px 12px 12px;
+    }
+
+    .message.bot .message-content {
+        background: white;
+        color: #333;
+        border: 1px solid #e5e7eb;
+        border-radius: 4px 12px 12px 12px;
+    }
+
+    .chatbot-input-area {
+        border-top: 1px solid #e5e7eb;
+        padding: 12px;
+        display: flex;
+        gap: 8px;
+    }
+
+    .chatbot-input {
+        flex: 1;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        padding: 10px 12px;
+        font-size: 13px;
+        font-family: inherit;
+    }
+
+    .chatbot-input:focus {
+        outline: none;
+        border-color: #1e3a8a;
+        box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+    }
+
+    .send-btn {
+        background: #1e3a8a;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 14px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: all 0.3s;
+    }
+
+    .send-btn:hover {
+        background: #1e40af;
+    }
+
+    .send-btn:active {
+        transform: scale(0.95);
+    }
+
+    .typing-indicator {
+        display: flex;
+        gap: 4px;
+        padding: 10px 14px;
+    }
+
+    .typing-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #999;
+        animation: typing 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+        0%, 60%, 100% {
+            opacity: 0.5;
+            transform: translateY(0);
+        }
+        30% {
+            opacity: 1;
+            transform: translateY(-10px);
+        }
+    }
+
+    .suggested-questions {
+        display: grid;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .suggested-btn {
+        background: #f0f4f8;
+        border: 1px solid #d1d5db;
+        color: #333;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: left;
+        line-height: 1.3;
+    }
+
+    .suggested-btn:hover {
+        background: #1e3a8a;
+        color: white;
+        border-color: #1e3a8a;
+    }
+
+    @media (max-width: 1024px) {
+        .layout-wrapper {
+            grid-template-columns: 1fr;
+        }
+
+        .chatbot-widget {
+            position: relative;
+            top: 0;
+            height: 400px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="section-content">
+        <div class="help-container">
+            <div class="layout-wrapper">
+                        <div class="faq-section">
+                            <div class="help-links">
+                                <div class="help-link-card">
+                                    <i class="fas fa-book"></i>
+                                    <h4>Documentation</h4>
+                                    <p>Read our comprehensive guides</p>
+                                </div>
+                                <div class="help-link-card">
+                                    <i class="fas fa-video"></i>
+                                    <h4>Video Tutorials</h4>
+                                    <p>Watch step-by-step tutorials</p>
+                                </div>
+                                <div class="help-link-card">
+                                    <i class="fas fa-life-ring"></i>
+                                    <h4>Community</h4>
+                                    <p>Connect with other users</p>
+                                </div>
+                            </div>
+
+                            <h2>❓ Frequently Asked Questions</h2>
+
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    <span>How do I submit a complaint?</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="faq-answer">
+                                    <p>To submit a complaint, navigate to the "Submit Complaint" section from your dashboard. Fill in the title and detailed description of your complaint, then click "Submit". Your complaint will be reviewed and assigned to the appropriate staff member for handling.</p>
+                                </div>
+                            </div>
+
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    <span>How long does it take to resolve a complaint?</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="faq-answer">
+                                    <p>Resolution time varies depending on the complexity of your complaint. Most complaints are addressed within 5-7 working days. You can track the status of your complaint in real-time through your dashboard.</p>
+                                </div>
+                            </div>
+
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    <span>Can I edit my complaint after submission?</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="faq-answer">
+                                    <p>Once a complaint is submitted, you cannot edit it directly. However, you can provide additional information by contacting the assigned staff member through the complaint detail page or using the support system.</p>
+                                </div>
+                            </div>
+
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    <span>How does the AI classification work?</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="faq-answer">
+                                    <p>Our AI system categorizes complaints automatically based on keywords and context. This helps route your complaint to the correct department quickly. The AI also analyzes sentiment to identify urgent issues that need immediate attention.</p>
+                                </div>
+                            </div>
+
+                            <div class="faq-item">
+                                <div class="faq-question" onclick="toggleFAQ(this)">
+                                    <span>Is my complaint confidential?</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </div>
+                                <div class="faq-answer">
+                                    <p>Yes, all complaints are treated with confidentiality. Only authorized staff members have access to your complaint details. Your privacy is protected at all times in accordance with our data protection policies.</p>
+                                </div>
+                            </div>
+
+                            <div class="contact-section">
+                                <h3><i class="fas fa-phone"></i> Need more help?</h3>
+                                <div class="contact-info">
+                                    <div class="contact-info-item">
+                                        <i class="fas fa-envelope"></i>
+                                        <span>Email: support@udom-cive.edu</span>
+                                    </div>
+                                    <div class="contact-info-item">
+                                        <i class="fas fa-phone"></i>
+                                        <span>Phone: +255 700 000 000</span>
+                                    </div>
+                                    <div class="contact-info-item">
+                                        <i class="fas fa-map-marker"></i>
+                                        <span>Office Hours: Mon-Fri, 8:00 AM - 5:00 PM</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CHATBOT WIDGET -->
+                        <div class="chatbot-widget">
+                            <div class="chatbot-header">
+                                <h3><i class="fas fa-robot"></i> AI Assistant</h3>
+                                <button class="close-btn" onclick="minimizeChatbot()">−</button>
+                            </div>
+                            <div class="chatbot-messages" id="chatbot-messages">
+                                <div class="message bot">
+                                    <div class="message-content">
+                                        <i class="fas fa-hand-sparkles"></i> Hello! I'm your AI Assistant. Ask me anything about the complaints system, and I'll help you find the answer!
+                                    </div>
+                                </div>
+                                <div class="message bot">
+                                    <div class="message-content">
+                                        Here are some popular questions:
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chatbot-input-area">
+                                <input 
+                                    type="text" 
+                                    id="chatbot-input" 
+                                    class="chatbot-input" 
+                                    placeholder="Ask me anything..."
+                                    onkeypress="handleChatInput(event)"
+                                >
+                                <button class="send-btn" onclick="sendChatMessage()">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="/static/dashboard.js"></script>
+<script>
+// FAQ toggle function
+function toggleFAQ(element) {
+    element.classList.toggle('active');
+    const answer = element.nextElementSibling;
+    answer.classList.toggle('show');
+}
+
+// Chatbot FAQ Database
+const chatbotFAQ = [
+    {
+        keywords: ['submit', 'complaint', 'how', 'create', 'file', 'report'],
+        answer: 'To submit a complaint, navigate to the "Submit Complaint" section from your dashboard. Fill in the title and detailed description of your complaint, then click "Submit". Your complaint will be reviewed and assigned to the appropriate staff member for handling.'
+    },
+    {
+        keywords: ['resolve', 'time', 'how', 'long', 'days', 'duration'],
+        answer: 'Resolution time varies depending on the complexity of your complaint. Most complaints are addressed within 5-7 working days. You can track the status of your complaint in real-time through your dashboard.'
+    },
+    {
+        keywords: ['edit', 'change', 'modify', 'after', 'submission', 'update'],
+        answer: 'Once a complaint is submitted, you cannot edit it directly. However, you can provide additional information by contacting the assigned staff member through the complaint detail page or using the support system.'
+    },
+    {
+        keywords: ['ai', 'classification', 'categorize', 'automatic', 'category'],
+        answer: 'Our AI system categorizes complaints automatically based on keywords and context. This helps route your complaint to the correct department quickly. The AI also analyzes sentiment to identify urgent issues that need immediate attention.'
+    },
+    {
+        keywords: ['confidential', 'private', 'privacy', 'secure', 'safe', 'confidentiality'],
+        answer: 'Yes, all complaints are treated with confidentiality. Only authorized staff members have access to your complaint details. Your privacy is protected at all times in accordance with our data protection policies.'
+    },
+    {
+        keywords: ['track', 'status', 'monitor', 'view', 'where', 'progress'],
+        answer: 'You can track your complaint status in the "My Complaints" section of your dashboard. Click on any complaint to see detailed updates about its progress and current status.'
+    },
+    {
+        keywords: ['contact', 'support', 'help', 'phone', 'email', 'reach'],
+        answer: 'You can reach our support team via:\n📧 Email: support@udom-cive.edu\n📞 Phone: +255 700 000 000\n⏰ Office Hours: Mon-Fri, 8:00 AM - 5:00 PM'
+    },
+    {
+        keywords: ['dashboard', 'home', 'access', 'login', 'start', 'begin'],
+        answer: 'Once you log in, you\'ll see your personalized dashboard. From there, you can access all complaint-related features including submitting new complaints, viewing your existing complaints, and tracking their status.'
+    }
+];
+
+// Message history
+let messageHistory = [];
+
+// Load previous messages from localStorage
+function loadChatHistory() {
+    const history = localStorage.getItem('chatbotMessages');
+    if (history) {
+        messageHistory = JSON.parse(history);
+        const messagesDiv = document.getElementById('chatbot-messages');
+        messagesDiv.innerHTML = '';
+        messageHistory.forEach(msg => {
+            addMessageToUI(msg.text, msg.type);
+        });
+        showSuggestedQuestions();
+    }
+}
+
+// Save messages to localStorage
+function saveChatHistory() {
+    localStorage.setItem('chatbotMessages', JSON.stringify(messageHistory));
+}
+
+// Add message to UI
+function addMessageToUI(text, type = 'bot') {
+    const messagesDiv = document.getElementById('chatbot-messages');
+    const messageEl = document.createElement('div');
+    messageEl.className = `message ${type}`;
+    
+    const contentEl = document.createElement('div');
+    contentEl.className = 'message-content';
+    contentEl.innerHTML = text;
+    
+    messageEl.appendChild(contentEl);
+    messagesDiv.appendChild(messageEl);
+    
+    // Auto-scroll to bottom
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Show typing indicator
+function showTypingIndicator() {
+    const messagesDiv = document.getElementById('chatbot-messages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message bot';
+    typingDiv.id = 'typing-indicator';
+    typingDiv.innerHTML = '<div class="message-content"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>';
+    messagesDiv.appendChild(typingDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+// Remove typing indicator
+function removeTypingIndicator() {
+    const typing = document.getElementById('typing-indicator');
+    if (typing) typing.remove();
+}
+
+// Find answer to user question (from FAQ database first)
+function findAnswer(question) {
+    const lowerQuestion = question.toLowerCase();
+    let bestMatch = null;
+    let maxMatches = 0;
+    
+    chatbotFAQ.forEach(faq => {
+        let matches = 0;
+        faq.keywords.forEach(keyword => {
+            if (lowerQuestion.includes(keyword)) matches++;
+        });
+        
+        if (matches > maxMatches) {
+            maxMatches = matches;
+            bestMatch = faq.answer;
+        }
+    });
+    
+    // Return match info (null if no strong match found)
+    return {
+        answer: bestMatch,
+        confidence: maxMatches,
+        found: bestMatch !== null && maxMatches > 0
+    };
+}
+
+// Perform Google search via backend API
+async function performGoogleSearch(question) {
+    try {
+        const response = await fetch('/accounts/api/chatbot-search/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+            },
+            body: JSON.stringify({ query: question })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            let answer = data.answer;
+            
+            // Add sources if available
+            if (data.sources && data.sources.length > 0) {
+                answer += '\n\n<i class="fas fa-book"></i> Sources:\n';
+                data.sources.forEach((source, index) => {
+                    answer += `${index + 1}. ${source.title}\n`;
+                });
+            }
+            
+            return {
+                answer: answer,
+                found: true,
+                from_search: true
+            };
+        } else {
+            return {
+                answer: data.answer,
+                found: false,
+                from_search: true
+            };
+        }
+    } catch (error) {
+        console.error('Search error:', error);
+        return {
+            answer: 'Sorry, I encountered an error while searching. Please try again or contact support.',
+            found: false,
+            from_search: false
+        };
+    }
+}
+
+// Send chat message with FAQ and Google search
+async function sendChatMessage() {
+    const input = document.getElementById('chatbot-input');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Add user message
+    addMessageToUI(message, 'user');
+    messageHistory.push({ text: message, type: 'user' });
+    input.value = '';
+    input.focus();
+    
+    // Show typing indicator
+    showTypingIndicator();
+    
+    // First, try to find answer in FAQ
+    const faqResult = findAnswer(message);
+    
+    let answer, responseMessage;
+    
+    if (faqResult.found) {
+        // FAQ match found - use it
+        responseMessage = faqResult.answer;
+        answer = '✓ ' + responseMessage;
+        
+        setTimeout(() => {
+            removeTypingIndicator();
+            addMessageToUI(answer, 'bot');
+            messageHistory.push({ text: answer, type: 'bot' });
+            saveChatHistory();
+        }, 600);
+    } else {
+        // No FAQ match - perform Google search
+        try {
+            const searchResult = await performGoogleSearch(message);
+            
+            if (searchResult.from_search) {
+                responseMessage = searchResult.answer;
+            } else {
+                responseMessage = 'Unable to find specific information. Please try another search or contact support.';
+            }
+            
+            answer = '<i class="fas fa-magnifying-glass"></i> Search Result:\n' + responseMessage;
+            
+            removeTypingIndicator();
+            addMessageToUI(answer, 'bot');
+            messageHistory.push({ text: answer, type: 'bot' });
+            saveChatHistory();
+        } catch (error) {
+            console.error('Error:', error);
+            removeTypingIndicator();
+            const errorMsg = 'Sorry, I encountered an error. Please try again.';
+            addMessageToUI(errorMsg, 'bot');
+            messageHistory.push({ text: errorMsg, type: 'bot' });
+            saveChatHistory();
+        }
+    }
+    
+    showSuggestedQuestions();
+}
+
+// Handle enter key
+function handleChatInput(event) {
+    if (event.key === 'Enter') {
+        sendChatMessage();
+    }
+}
+
+// Show suggested questions
+function showSuggestedQuestions() {
+    // Optional: Add suggested questions at certain points
+}
+
+// Minimize chatbot (optional)
+function minimizeChatbot() {
+    alert('Minimize feature - you can refresh to continue the chat later!');
+}
+
+// Initialize chatbot on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadChatHistory();
+    showSuggestedQuestions();
+});
+</script>
+{% endblock %}

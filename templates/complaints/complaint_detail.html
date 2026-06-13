@@ -1,0 +1,287 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Complaint #{{ complaint.id }} | AI Complaints System{% endblock %}
+
+{% block header_title %}
+<i class="fas fa-file-alt"></i> Complaint Details
+{% endblock %}
+
+{% block header_subtitle %}
+View complaint information and updates
+{% endblock %}
+
+{% block sidebar_nav %}
+{% if user.role == 'staff' or user.role == 'admin' %}
+<!-- STAFF SIDEBAR -->
+<div class="nav-section">
+    <div class="nav-section-title">Main</div>
+    <a href="/accounts/staff-dashboard/" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Dashboard</span>
+    </a>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Complaints</div>
+    <a href="/assign-complaints/" class="nav-item">
+        <i class="fas fa-tasks"></i>
+        <span>Assigned Complaints</span>
+    </a>
+    <a href="/complaints-stats/" class="nav-item">
+        <i class="fas fa-chart-bar"></i>
+        <span>Analytics</span>
+    </a>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Account</div>
+    <a href="/accounts/profile/" class="nav-item">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </a>
+    <a href="/accounts/settings/" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+    </a>
+    <a href="/accounts/help/" class="nav-item">
+        <i class="fas fa-question-circle"></i>
+        <span>Help & Support</span>
+    </a>
+</div>
+{% else %}
+<!-- STUDENT SIDEBAR -->
+<div class="nav-section">
+    <div class="nav-section-title">Main</div>
+    <a href="/accounts/student-dashboard/" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Dashboard</span>
+    </a>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Complaints</div>
+    <a href="/submit-complaint/" class="nav-item">
+        <i class="fas fa-plus-circle"></i>
+        <span>Submit Complaint</span>
+    </a>
+    <a href="/my-complaints/" class="nav-item">
+        <i class="fas fa-list"></i>
+        <span>My Complaints</span>
+    </a>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Account</div>
+    <a href="/accounts/profile/" class="nav-item">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </a>
+    <a href="/accounts/settings/" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+    </a>
+    <a href="/accounts/help/" class="nav-item">
+        <i class="fas fa-question-circle"></i>
+        <span>Help & Support</span>
+    </a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detail-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .detail-card {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .complaint-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 30px;
+        padding-bottom: 25px;
+        border-bottom: 2px solid #e5e7eb;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .complaint-header h2 {
+        margin: 0;
+        color: #1e3a8a;
+        font-size: 28px;
+    }
+
+    .complaint-header p {
+        margin: 8px 0 0 0;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .detail-row {
+        margin-bottom: 25px;
+    }
+
+    .detail-row label {
+        display: block;
+        font-weight: 700;
+        color: #1e3a8a;
+        
+        margin-bottom: 10px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .detail-row p {
+        margin: 0;
+        padding: 15px;
+        background: #f8f9fa;
+        border-left: 4px solid #1e3a8a;
+        border-radius: 4px;
+        color: #333;
+        line-height: 1.6;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 12px 24px;
+        background: #1e3a8a;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .action-btn:hover {
+        background: #1e40af;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+    }
+
+    .secondary-btn {
+        background: #6b7280;
+    }
+
+    .secondary-btn:hover {
+        background: #4b5563;
+        box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+    }
+
+    @media (max-width: 768px) {
+        .detail-card {
+            padding: 20px;
+        }
+
+        .complaint-header {
+            flex-direction: column;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="detail-container">
+    <div class="detail-card">
+        <div class="complaint-header">
+            <div>
+                <h2><i class="fas fa-ticket-alt"></i> Complaint #{{ complaint.id }}</h2>
+                <p><i class="fas fa-calendar-alt"></i> Submitted {{ complaint.created_at|date:"M d, Y \a\t H:i" }}</p>
+            </div>
+            <span class="badge badge-{% if complaint.status == 'Pending' %}pending{% elif complaint.status == 'In Progress' %}progress{% elif complaint.status == 'Resolved' %}resolved{% else %}rejected{% endif %}" style="font-size: 14px; padding: 10px 16px;">
+                {{ complaint.status }}
+            </span>
+        </div>
+
+        <div class="detail-row">
+            <label><i class="fas fa-heading"></i> Title</label>
+            <p>{{ complaint.title }}</p>
+        </div>
+
+        <div class="detail-row">
+            <label><i class="fas fa-align-left"></i> Description</label>
+            <p style="white-space: pre-wrap;">{{ complaint.description }}</p>
+        </div>
+
+        <div class="detail-row">
+            <label><i class="fas fa-info-circle"></i> Priority</label>
+            <p>
+                <span class="badge badge-{{ complaint.priority|lower }}">
+                    {{ complaint.priority }}
+                </span>
+            </p>
+        </div>
+
+        <div class="detail-row">
+            <label><i class="fas fa-info-circle"></i> Current Status</label>
+            <p>{{ complaint.status }}</p>
+        </div>
+
+        {% if complaint.assigned_to %}
+        <div class="detail-row">
+            <label><i class="fas fa-user-check"></i> Assigned To</label>
+            <p>{{ complaint.assigned_to.get_full_name|default:complaint.assigned_to.username }}</p>
+        </div>
+        {% endif %}
+
+        <!-- Responses Section -->
+        {% if responses %}
+        <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e5e7eb;">
+            <h3 style="color: #1e3a8a; margin-bottom: 20px;"><i class="fas fa-comments"></i> Responses ({{ responses.count }})</h3>
+            {% for response in responses %}
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #1e3a8a;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <strong style="color: #1e3a8a;">{{ response.staff_member.get_full_name|default:response.staff_member.username }}</strong>
+                    <small style="color: #666;">{{ response.created_at|date:"M d, Y H:i" }}</small>
+                </div>
+                <p style="margin: 0; color: #333; line-height: 1.6; white-space: pre-wrap;">{{ response.response }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #e5e7eb;">
+            <p style="color: #999; text-align: center;"><i class="fas fa-info-circle"></i> No responses yet</p>
+        </div>
+        {% endif %}
+
+        <div class="action-buttons">
+            {% if user.role == 'staff' or user.role == 'admin' %}
+                <a href="{% url 'staff_respond' complaint.id %}" class="action-btn">
+                    <i class="fas fa-reply"></i> Add Response
+                </a>
+            {% endif %}
+            <a href="/my-complaints/" class="action-btn secondary-btn">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

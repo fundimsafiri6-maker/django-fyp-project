@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>System Report - UDOM CIVE</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            color: #333;
+        }
+        h1 {
+            color: #1e3a8a;
+            border-bottom: 3px solid #1e3a8a;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #1e3a8a;
+            margin-top: 30px;
+        }
+        .report-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .report-header h1 {
+            border: none;
+            font-size: 28px;
+        }
+        .report-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        .summary-box {
+            background: #f8f9fa;
+            border-left: 4px solid #1e3a8a;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-top: 5px;
+        }
+        .highlight {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .highlight-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 3px;
+        }
+        .highlight-item strong {
+            color: #1e3a8a;
+        }
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #1e3a8a;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="report-header">
+        <h1>System Report</h1>
+        <p>Monthly Complaint Summary Report - UDOM CIVE</p>
+        <p>Generated: {{ generated_date }}</p>
+    </div>
+
+    <div class="summary-box">
+        <h2>Executive Summary</h2>
+        <p>This report provides a comprehensive overview of the complaint management system for the period of {{ generated_date }}.</p>
+    </div>
+
+    <h2>Complaint Statistics Overview</h2>
+    <div class="stat-grid">
+        <div class="stat-item">
+            <div class="stat-label">Total Complaints</div>
+            <div class="stat-value">{{ total_complaints }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Pending Review</div>
+            <div class="stat-value">{{ pending_complaints }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">In Progress</div>
+            <div class="stat-value">{{ in_progress_complaints }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Resolved</div>
+            <div class="stat-value">{{ resolved_complaints }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Rejected</div>
+            <div class="stat-value">{{ rejected_complaints }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Avg Resolution Time</div>
+            <div class="stat-value">{{ avg_resolution_time }}</div>
+        </div>
+    </div>
+
+    <h2>Key Insights</h2>
+    <div class="highlight">
+        <div class="highlight-item">
+            <strong>Top Category:</strong> {{ top_category }}
+        </div>
+        <div class="highlight-item">
+            <strong>Most Active Department:</strong> {{ most_active_dept }}
+        </div>
+        <div class="highlight-item">
+            <strong>Average Resolution Time:</strong> {{ avg_resolution_time }}
+        </div>
+    </div>
+
+    <h2>Status Distribution</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Status</th>
+                <th>Count</th>
+                <th>Percentage</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Pending</td>
+                <td>{{ pending_complaints }}</td>
+                <td>{% if total_complaints > 0 %}{{ pending_complaints|floatformat:2 }}{% else %}0.00{% endif %}%</td>
+            </tr>
+            <tr>
+                <td>In Progress</td>
+                <td>{{ in_progress_complaints }}</td>
+                <td>{% if total_complaints > 0 %}{{ in_progress_complaints|floatformat:2 }}{% else %}0.00{% endif %}%</td>
+            </tr>
+            <tr>
+                <td>Resolved</td>
+                <td>{{ resolved_complaints }}</td>
+                <td>{% if total_complaints > 0 %}{{ resolved_complaints|floatformat:2 }}{% else %}0.00{% endif %}%</td>
+            </tr>
+            <tr>
+                <td>Rejected</td>
+                <td>{{ rejected_complaints }}</td>
+                <td>{% if total_complaints > 0 %}{{ rejected_complaints|floatformat:2 }}{% else %}0.00{% endif %}%</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p>AI Complaints Management System - University of Dodoma</p>
+        <p>Report generated automatically on {% now "jS F Y H:i" %}</p>
+    </div>
+</body>
+</html>

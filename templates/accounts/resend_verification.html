@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resend Verification Email - AI Complaints System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e232c 100%);
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .icon-container {
+            margin-bottom: 20px;
+        }
+
+        .icon-container i {
+            font-size: 48px;
+            color: #1e3a8a;
+        }
+
+        h1 {
+            color: #1e3a8a;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        p {
+            color: #666;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #1e3a8a;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .resend-btn {
+            width: 100%;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #0c1e3c 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .resend-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(30, 58, 138, 0.3);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #1e3a8a;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .info-box {
+            background: #f0f4f8;
+            border-left: 4px solid #1e3a8a;
+            padding: 12px 14px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #555;
+            margin-top: 20px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon-container">
+            <i class="fas fa-envelope-open-text"></i>
+        </div>
+        <h1>Resend Verification Email</h1>
+        <p>Enter the email address associated with your account and we'll send you a new verification link.</p>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div style="background: {% if message.tags == 'error' %}#fee{% else %}#efe{% endif %}; border: 1px solid {% if message.tags == 'error' %}#fcc{% else %}#cfc{% endif %}; border-radius: 6px; padding: 12px 16px; margin-bottom: 15px; text-align: left; font-size: 14px; color: {% if message.tags == 'error' %}#c33{% else %}#3c3{% endif %};">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
+                <input type="email" id="email" name="email" placeholder="your-email@example.com" required {% if unverified_email %}value="{{ unverified_email }}"{% endif %}>
+            </div>
+            <button type="submit" class="resend-btn">
+                <i class="fas fa-paper-plane"></i> Send Verification Email
+            </button>
+        </form>
+
+        <div class="info-box">
+            <strong>Tip:</strong> If you don't see the email in your inbox, check your spam/junk folder. Make sure to add <strong>noreply@udom-complaints.ac.tz</strong> to your contacts.
+        </div>
+
+        <a href="{% url 'login' %}" class="back-link">← Back to Login</a>
+    </div>
+</body>
+</html>

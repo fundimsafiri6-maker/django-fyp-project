@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - AI Complaints System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+             background: #1e3a8a;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .register-container {
+            background: white;
+            border-radius: 12px 12px 12px 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .register-image-section {
+            flex: 0 0 30%;
+            background: linear-gradient(135deg, #1e232c 0%, #1e3a8a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+            min-height: 450px;
+        }
+
+        .register-image-section img {
+            max-width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+        }
+
+        .register-form-section {
+            flex: 0 0 70%;
+            display: flex;
+            flex-direction: column;
+            border-radius: 0 12px 12px 0;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .register-header {
+            background: white;
+            color: #333;
+            padding: 40px 30px 30px 30px;
+            text-align: center;
+            border-bottom: none;
+        }
+
+        .register-header h1 {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .register-header p {
+            text-align: center;
+            font-size: 14px;
+            opacity: 0.7;
+            color: #666;
+        }
+
+        .header-logo {
+            font-size: 48px;
+            color: #1e3a8a;
+            margin-bottom: 15px;
+        }
+
+        .register-body {
+            padding: 30px 40px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            text-align: justify;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            text-align: justify;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 88%;
+            padding: 12px 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #1e3a8a;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+.password-group {
+            margin-bottom: 15px;
+        }
+
+        .password-group input {
+            width: 88%;
+            padding: 12px 14px;
+        }
+
+        .show-password-checkbox {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .show-password-checkbox input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #1e3a8a;
+        }
+
+        .show-password-checkbox label {
+            margin: 0;
+            cursor: pointer;
+            text-transform: none;
+        }
+
+        .messages {
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: left;
+            animation: slideIn 0.4s ease-out;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 250px;
+            max-width: 350px;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .alert-error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .alert-success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        .alert.fade-out {
+            animation: fadeOut 0.4s ease-out forwards;
+        }
+
+        .register-btn {
+            width: 88%;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #0c1e3c 0%, #1e3a8a 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: none;
+            letter-spacing: normal;
+            white-space: nowrap;
+            overflow: visible;
+            margin-top: 10px;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(30, 58, 138, 0.3);
+        }
+
+        .register-btn:active {
+            transform: translateY(0);
+        }
+
+        .register-footer {
+            text-align: justify;
+            padding-top: 15px;
+            margin-top: auto;
+            border-top: none;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .register-footer a {
+            color: #1e3a8a;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .register-footer a:hover {
+            color: #0c1e3c;
+            text-decoration: underline;
+        }
+
+        .info-box {
+            background: #f0f4f8;
+            border-left: 4px solid #1e3a8a;
+            padding: 12px 14px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #555;
+            margin-bottom: 20px;
+            width: 88%;
+        }
+
+        footer {
+            background: #0c1e3c;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 13px;
+            margin-top: auto;
+        }
+
+        footer p {
+            margin: 8px 0;
+        }
+
+        .footer-links {
+            margin-top: 12px;
+        }
+
+        .footer-links a {
+            color: #ccc;
+            text-decoration: none;
+            margin: 0 12px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .register-container {
+                flex-direction: column;
+                max-width: 100%;
+            }
+
+            .register-image-section {
+                min-height: 250px;
+                padding: 20px;
+            }
+
+            .register-header {
+                padding: 25px 20px;
+            }
+
+            .register-header h1 {
+                font-size: 22px;
+            }
+
+            .register-body {
+                padding: 25px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .register-container {
+                margin: 0 10px;
+            }
+
+            .register-header {
+                padding: 20px 15px;
+            }
+
+            .register-header h1 {
+                font-size: 20px;
+            }
+
+            .register-body {
+                padding: 20px 15px;
+            }
+
+            .register-image-section {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-content">
+    <div class="register-container">
+        <!-- Image Section -->
+        <div class="register-image-section">
+            <svg width="280" height="280" viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background Circle -->
+                <circle cx="140" cy="140" r="135" fill="rgba(255, 255, 255, 0.1)" stroke="rgba(255, 255, 255, 0.3)" stroke-width="2"/>
+                
+                <!-- Clipboard Icon -->
+                <g transform="translate(70, 60)">
+                    <!-- Clipboard Body -->
+                    <rect x="20" y="30" width="100" height="120" rx="8" fill="white" stroke="rgba(255, 255, 255, 0.9)" stroke-width="2"/>
+                    <!-- Clipboard Clip -->
+                    <rect x="50" y="5" width="40" height="30" rx="4" fill="white" stroke="rgba(255, 255, 255, 0.9)" stroke-width="2"/>
+                    <!-- Lines on Clipboard -->
+                    <line x1="35" y1="50" x2="105" y2="50" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="35" y1="65" x2="105" y2="65" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="35" y1="80" x2="95" y2="80" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="35" y1="95" x2="105" y2="95" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="35" y1="110" x2="85" y2="110" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="35" y1="125" x2="105" y2="125" stroke="rgba(255, 255, 255, 0.7)" stroke-width="2" stroke-linecap="round"/>
+                    <!-- Check Mark -->
+                    <circle cx="35" cy="140" r="8" fill="rgba(34, 197, 94, 1)"/>
+                    <path d="M 32 140 L 34.5 142.5 L 38 139" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </g>
+            </svg>
+        </div>
+
+<div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+        
+        <!-- Form Section -->
+        <div class="register-form-section" style="border-radius: 12px;">
+            <div class="register-header" style="margin-left:0px;">
+                <h1>Create Your Account</h1>
+                <p>Please fill in your information to register</p>
+            </div>
+
+            <div class="register-body">
+                <!-- Display validation errors -->
+                {% if error_list %}
+                <div class="error-messages" style="margin-bottom: 20px;">
+                    <div style="background: #fee; border: 1px solid #fcc; border-radius: 6px; padding: 12px; color: #c33;">
+                        <strong>⚠️ Registration Failed:</strong>
+                        <ul style="margin: 8px 0 0 20px;">
+                            {% for error in error_list %}
+                            <li style="margin: 4px 0;">{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Username</label>
+                        <input type="text" name="username" placeholder="Choose a unique username (3+ characters)" 
+                               value="{{ username }}" required>
+                        <small style="color: #888; font-size: 12px;">Letters, numbers, and underscores only</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-envelope"></i> Email Address</label>
+                        <input type="email" name="email" placeholder="Your email address" 
+                               value="{{ email }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Password</label>
+                        <div class="password-group">
+                            <input type="password" id="password" name="password" 
+                                   placeholder="Create a strong password (8+ characters)" required>
+                        </div>
+                        <div class="show-password-checkbox">
+                            <input type="checkbox" id="showPassword" onchange="togglePasswordVisibility('password')">
+                            <label for="showPassword">Show Password</label>
+                        </div>
+                        <small style="color: #888; font-size: 12px;">Must contain uppercase, lowercase, and numbers</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> Confirm Password</label>
+                        <div class="password-group">
+                            <input type="password" id="password_confirm" name="password_confirm" 
+                                   placeholder="Confirm your password" required>
+                        </div>
+                        <div class="show-password-checkbox">
+                            <input type="checkbox" id="showPasswordConfirm" onchange="togglePasswordVisibility('password_confirm')">
+                            <label for="showPasswordConfirm">Show Password</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fas fa-id-card"></i> Registration Number (Optional)</label>
+                        <input type="text" name="registration_number" 
+                               placeholder="Your student/staff registration number" 
+                               value="{{ registration_number }}">
+                    </div>
+
+
+
+                    <button type="submit" class="register-btn" id="submit-btn">
+                        Create Account
+                    </button>
+
+                    <div class="register-footer">
+                        Already have an account? 
+                        <a href="/accounts/login/">
+                            <i class="fas fa-sign-in-alt"></i> Login here
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function togglePasswordVisibility(fieldId) {
+    const field = document.getElementById(fieldId);
+    if (!field) return;
+
+    // Find the checkbox for this field
+    const checkboxId = fieldId === 'password' ? 'showPassword' : 'showPasswordConfirm';
+    const checkbox = document.getElementById(checkboxId);
+
+    if (field.type === 'password') {
+        field.type = 'text';
+        if (checkbox) checkbox.checked = true;
+    } else {
+        field.type = 'password';
+        if (checkbox) checkbox.checked = false;
+    }
+}
+
+
+
+// Validate form before submission
+document.querySelector('form').addEventListener('submit', function(e) {
+    const password = document.getElementById('password').value;
+    const passwordConfirm = document.getElementById('password_confirm').value;
+    
+    // Check password match
+    if (password !== passwordConfirm) {
+        e.preventDefault();
+        alert('Passwords do not match!');
+        return false;
+    }
+    
+    return true;
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-hide messages after 4 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.style.transition = 'opacity 0.5s ease-out';
+            alert.style.opacity = '0';
+            setTimeout(() => {
+                alert.remove();
+            }, 500);
+        }, 4000);
+    });
+
+    // Initialize password toggle buttons with event listeners
+    const passwordToggles = document.querySelectorAll('.password-toggle');
+    passwordToggles.forEach(button => {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+            const fieldId = this.getAttribute('data-field');
+            togglePasswordVisibility(fieldId);
+        });
+    });
+});
+</script>
+
+<!-- Toast notification messages (non-intrusive) -->
+{% if messages %}
+<script>
+(function() {
+    const container = document.getElementById('toast-container');
+    {% for message in messages %}
+    (function() {
+        const toast = document.createElement('div');
+        toast.className = 'alert alert-{{ message.tags|default:"error" }}';
+        toast.innerHTML = '<i class="fas fa-{% if message.tags == "success" %}check-circle{% else %}exclamation-circle{% endif %}"></i> {{ message }}';
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => toast.remove(), 500);
+        }, 4000);
+    })();
+    {% endfor %}
+})();
+</script>
+{% endif %}
+</body>
+</html>

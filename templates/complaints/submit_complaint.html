@@ -1,0 +1,239 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Submit Complaint | AI Complaints System{% endblock %}
+
+{% block header_title %}
+<i class="fas fa-feather"></i> Submit New Complaint
+{% endblock %}
+
+{% block header_subtitle %}
+Tell us what needs improvement
+{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section">
+    <div class="nav-section-title">Main</div>
+    <a href="/accounts/student-dashboard/" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Dashboard</span>
+    </a>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Complaints</div>
+    <a href="/submit-complaint/" class="nav-item active">
+        <i class="fas fa-plus-circle"></i>
+        <span>Submit Complaint</span>
+    </a>
+    <a href="/my-complaints/" class="nav-item">
+        <i class="fas fa-list"></i>
+        <span>My Complaints</span>
+    </a>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Account</div>
+    <a href="/accounts/profile/" class="nav-item">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </a>
+    <a href="/accounts/settings/" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+    </a>
+    <a href="/accounts/help/" class="nav-item">
+        <i class="fas fa-question-circle"></i>
+        <span>Help & Support</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .complaint-form-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .complaint-form {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 10px;
+        color: #1e3a8a;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 14px;
+        box-sizing: border-box;
+        transition: all 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #1e3a8a;
+        box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+    }
+
+    .form-group textarea {
+        min-height: 200px;
+        resize: vertical;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .submit-btn, .cancel-btn {
+        flex: 1;
+        padding: 12px 20px;
+        font-size: 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .submit-btn {
+        background: #1e3a8a;
+        color: white;
+    }
+
+    .submit-btn:hover {
+        background: #1e40af;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+    }
+
+    .cancel-btn {
+        background: #e5e7eb;
+        color: #333;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cancel-btn:hover {
+        background: #d1d5db;
+    }
+
+    .alert {
+        animation: slideIn 0.4s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+    }
+
+    .alert.fade-out {
+        animation: fadeOut 0.4s ease-out forwards;
+    }
+
+    @media (max-width: 768px) {
+        .complaint-form {
+            padding: 20px;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="complaint-form-container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}" style="margin-bottom: 20px; padding: 15px; border-radius: 6px; {% if message.tags == 'error' %}background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;{% else %}background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0;{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="complaint-form">
+        <h2 style="margin-top: 0; color: #1e3a8a; margin-bottom: 25px;"><i class="fas fa-feather"></i> Submit Your Complaint</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="title"><i class="fas fa-heading"></i> Complaint Title *</label>
+                <input type="text" id="title" name="title" placeholder="Brief title of your complaint" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description"><i class="fas fa-align-left"></i> Detailed Description *</label>
+                <textarea id="description" name="description" placeholder="Please describe your complaint in detail. Include what happened, when it happened, and how it affected you..." required></textarea>
+            </div>
+
+            <div class="button-group">
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane"></i> Submit Complaint
+                </button>
+                <a href="/my-complaints/" class="cancel-btn">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-hide Django messages after 4 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.style.transition = 'opacity 0.5s ease-out';
+            alert.style.opacity = '0';
+            setTimeout(() => {
+                alert.remove();
+            }, 500);
+        }, 4000);
+    });
+});
+</script>
+{% endblock %}

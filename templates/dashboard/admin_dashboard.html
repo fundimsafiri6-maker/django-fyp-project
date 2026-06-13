@@ -1,0 +1,240 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Admin Dashboard | AI Complaints System{% endblock %}
+
+{% block header_title %}
+<i class="fas fa-shield-alt"></i> Administrator Dashboard
+{% endblock %}
+
+{% block header_subtitle %}
+System-wide complaint management and monitoring
+{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section">
+    <div class="nav-section-title">Main</div>
+    <a href="/accounts/admin-dashboard/" class="nav-item" data-nav-path="admin-dashboard">
+        <i class="fas fa-home"></i>
+        <span>Dashboard</span>
+    </a>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Management</div>
+    <a href="/assign-complaints/" class="nav-item">
+        <i class="fas fa-tasks"></i>
+        <span>All Complaints</span>
+    </a>
+    <a href="/complaints-stats/" class="nav-item">
+        <i class="fas fa-chart-pie"></i>
+        <span>Analytics & Reports</span>
+    </a>
+    <a href="/accounts/admin-users/" class="nav-item">
+        <i class="fas fa-users"></i>
+        <span>User Management</span>
+    </a>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Account</div>
+    <a href="/accounts/profile/" class="nav-item">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </a>
+    <a href="/accounts/settings/" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+    </a>
+    <a href="/accounts/help/" class="nav-item">
+        <i class="fas fa-question-circle"></i>
+        <span>Help & Support</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- STATISTICS CARDS -->
+<div class="dashboard-cards">
+    <div class="card">
+        <div class="card-icon"><i class="fas fa-chart-bar"></i></div>
+        <h4>Total Complaints</h4>
+        <p class="card-number">{{ total_complaints }}</p>
+        <div class="card-footer"><i class="fas fa-layer-group"></i> All-time records</div>
+    </div>
+
+    <div class="card">
+        <div class="card-icon"><i class="fas fa-clock"></i></div>
+        <h4>Pending</h4>
+        <p class="card-number">{{ pending }}</p>
+        <div class="card-footer"><i class="fas fa-clock"></i> Awaiting assignment</div>
+    </div>
+
+    <div class="card">
+        <div class="card-icon"><i class="fas fa-sync-alt"></i></div>
+        <h4>In Progress</h4>
+        <p class="card-number">{{ in_progress }}</p>
+        <div class="card-footer"><i class="fas fa-wrench"></i> Being handled</div>
+    </div>
+
+    <div class="card">
+        <div class="card-icon"><i class="fas fa-check-double"></i></div>
+        <h4>Resolved</h4>
+        <p class="card-number">{{ resolved }}</p>
+        <div class="card-footer"><i class="fas fa-star"></i> Successfully closed</div>
+    </div>
+</div>
+
+<!-- SYSTEM OVERVIEW -->
+<div class="content-section">
+    <div class="section-header">
+        <h2><i class="fas fa-pie-chart"></i> Complaint Distribution by Status</h2>
+        <div class="section-header-actions">
+            <a href="/complaints-stats/" class="btn btn-primary">
+                <i class="fas fa-chart-bar"></i> Full Report
+            </a>
+        </div>
+    </div>
+
+    <div class="section-content">
+        <div class="status-bar">
+            {% if resolved > 0 %}
+            <div class="status-item" style="width: {{ resolved_percent }}%; background: #10b981;">
+                <span>Resolved ({{ resolved }})</span>
+            </div>
+            {% endif %}
+            {% if in_progress > 0 %}
+            <div class="status-item" style="width: {{ in_progress_percent }}%; background: #f59e0b;">
+                <span>In Progress ({{ in_progress }})</span>
+            </div>
+            {% endif %}
+            {% if pending > 0 %}
+            <div class="status-item" style="width: {{ pending_percent }}%; background: #ef4444;">
+                <span>Pending ({{ pending }})</span>
+            </div>
+            {% endif %}
+            {% if rejected > 0 %}
+            <div class="status-item" style="width: {{ rejected_percent }}%; background: #8b5cf6;">
+                <span>Rejected ({{ rejected }})</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Animation for stats cards */
+    .dashboard-cards .card {
+        animation: slideUpFadeIn 0.6s ease-out backwards;
+    }
+
+    .dashboard-cards .card:nth-child(1) { animation-delay: 0.1s; }
+    .dashboard-cards .card:nth-child(2) { animation-delay: 0.2s; }
+    .dashboard-cards .card:nth-child(3) { animation-delay: 0.3s; }
+    .dashboard-cards .card:nth-child(4) { animation-delay: 0.4s; }
+
+    /* Card number counter animation */
+    .card-number {
+        animation: countUp 1.5s ease-out 0.5s forwards;
+    }
+
+    @keyframes slideUpFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes countUp {
+        from {
+            opacity: 0.5;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    /* Status bar animation */
+    .status-item {
+        animation: slideInWidth 0.8s ease-out;
+    }
+
+    .status-item:nth-child(1) { animation-delay: 0.6s; }
+    .status-item:nth-child(2) { animation-delay: 0.8s; }
+    .status-item:nth-child(3) { animation-delay: 1.0s; }
+
+    @keyframes slideInWidth {
+        from {
+            width: 0 !important;
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    /* Content section animation */
+    .content-section {
+        animation: fadeInUp 0.7s ease-out;
+    }
+
+    .content-section:nth-of-type(1) { animation-delay: 0.3s; }
+    .content-section:nth-of-type(2) { animation-delay: 0.5s; }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Table row stagger animation */
+    table tbody tr {
+        animation: fadeIn 0.5s ease-out backwards;
+    }
+
+    table tbody tr:nth-child(1) { animation-delay: 1.2s; }
+    table tbody tr:nth-child(2) { animation-delay: 1.3s; }
+    table tbody tr:nth-child(3) { animation-delay: 1.4s; }
+    table tbody tr:nth-child(4) { animation-delay: 1.5s; }
+    table tbody tr:nth-child(5) { animation-delay: 1.6s; }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Activate nav item based on current URL
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentPath = window.location.pathname;
+        const navItems = document.querySelectorAll('.nav-item');
+        
+        navItems.forEach(item => {
+            item.classList.remove('active');
+            const href = item.getAttribute('href');
+            if (href && currentPath.includes(href.replace(/\//g, ''))) {
+                item.classList.add('active');
+            }
+        });
+    });
+</script>
+{% endblock %}

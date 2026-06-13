@@ -1,0 +1,632 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Student Affairs Dashboard | AI Complaints System{% endblock %}
+
+{% block header_title %}
+<i class="fas fa-users"></i> Student Affairs Dashboard
+{% endblock %}
+
+{% block header_subtitle %}
+Support student welfare, wellbeing, and activities | {{ department_name }}
+{% endblock %}
+
+{% block sidebar_nav %}
+<div class="nav-section">
+    <div class="nav-section-title">Department</div>
+        <a href="/accounts/student-affairs-dashboard/" class="nav-item" data-nav-path="student-affairs-dashboard">
+        <i class="fas fa-users"></i>
+        <span>Department Dashboard</span>
+    </a>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Complaints</div>
+    <a href="/assign-complaints/" class="nav-item">
+        <i class="fas fa-tasks"></i>
+        <span>Assigned Cases</span>
+    </a>
+    <a href="/complaints-stats/" class="nav-item">
+        <i class="fas fa-chart-bar"></i>
+        <span>Statistics</span>
+    </a>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Quick Actions</div>
+    <a href="/my-complaints/" class="nav-item">
+        <i class="fas fa-list"></i>
+        <span>My Cases</span>
+    </a>
+    <a href="/complaint-detail/" class="nav-item">
+        <i class="fas fa-eye"></i>
+        <span>View All</span>
+    </a>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Account</div>
+    <a href="/accounts/profile/" class="nav-item">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </a>
+    <a href="/accounts/settings/" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+    </a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="content-section" style="background: transparent; box-shadow: none; padding: 0;">
+    <!-- DEPARTMENT HEADER -->
+    <div class="dept-header">
+        <div class="dept-info">
+            <h1>{{ department_name }}</h1>
+            <p>Total Cases: <strong>{{ total_complaints }}</strong> | 
+               AI Classified: <strong>{{ ai_classified_count }}</strong> |
+               Unassigned: <strong>{{ unassigned_count }}</strong>
+            </p>
+        </div>
+    </div>
+
+    <!-- STATISTICS CARDS -->
+    <div class="stats-grid">
+        <div class="stat-card" style="border-top-color: #f59e0b;">
+            <h3><i class="fas fa-clock" style="color: #f59e0b;"></i> Pending</h3>
+            <div class="number">{{ pending_count|default:'0' }}</div>
+            <p class="stat-desc">Awaiting review</p>
+        </div>
+
+        <div class="stat-card" style="border-top-color: #3b82f6;">
+            <h3><i class="fas fa-spinner" style="color: #3b82f6;"></i> In Progress</h3>
+            <div class="number">{{ in_progress_count|default:'0' }}</div>
+            <p class="stat-desc">Being addressed</p>
+        </div>
+
+        <div class="stat-card" style="border-top-color: #10b981;">
+            <h3><i class="fas fa-check-circle" style="color: #10b981;"></i> Resolved</h3>
+            <div class="number">{{ resolved_count|default:'0' }}</div>
+            <p class="stat-desc">Completed</p>
+        </div>
+
+        <div class="stat-card" style="border-top-color: #ef4444;">
+            <h3><i class="fas fa-bolt" style="color: #ef4444;"></i> Urgent</h3>
+            <div class="number">{{ urgent_count|default:'0' }}</div>
+            <p class="stat-desc">High priority</p>
+        </div>
+
+        <div class="stat-card" style="border-top-color: #8b5cf6;">
+            <h3><i class="fas fa-user-check" style="color: #8b5cf6;"></i> Assigned To Me</h3>
+            <div class="number">{{ assigned_to_me_count|default:'0' }}</div>
+            <p class="stat-desc">My cases</p>
+        </div>
+
+        <div class="stat-card" style="border-top-color: #ec4899;">
+            <h3><i class="fas fa-robot" style="color: #ec4899;"></i> AI Classified</h3>
+            <div class="number">{{ ai_classified_count|default:'0' }}</div>
+            <p class="stat-desc">Auto-routed</p>
+        </div>
+    </div>
+
+    <!-- COMPLAINT DISTRIBUTION BY STATUS -->
+    <div class="section-box" style="margin-top: 25px;">
+        <h3><i class="fas fa-pie-chart"></i> Complaint Distribution by Status</h3>
+        <div style="margin-top: 15px;">
+            <div class="status-bar">
+                {% if resolved_count > 0 %}
+                <div class="status-item" style="width: {{ resolved_percent }}%; background: #10b981;">
+                    <span>Resolved ({{ resolved_count }})</span>
+                </div>
+                {% endif %}
+                {% if in_progress_count > 0 %}
+                <div class="status-item" style="width: {{ in_progress_percent }}%; background: #f59e0b;">
+                    <span>In Progress ({{ in_progress_count }})</span>
+                </div>
+                {% endif %}
+                {% if pending_count > 0 %}
+                <div class="status-item" style="width: {{ pending_percent }}%; background: #ef4444;">
+                    <span>Pending ({{ pending_count }})</span>
+                </div>
+                {% endif %}
+                {% if rejected_count > 0 %}
+                <div class="status-item" style="width: {{ rejected_percent }}%; background: #8b5cf6;">
+                    <span>Rejected ({{ rejected_count }})</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- TWO-COLUMN SECTION -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-top: 25px; overflow-x: auto;">
+        
+        <!-- CHARTS -->
+        <div>
+            <div class="section-box">
+                <h3><i class="fas fa-pie-chart"></i> Status Distribution</h3>
+                <canvas id="statusChart" height="80"></canvas>
+            </div>
+        </div>
+
+        <div>
+            <div class="section-box">
+                <h3><i class="fas fa-chart-bar"></i> Priority Distribution</h3>
+                <canvas id="priorityChart" height="80"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- URGENT CASES -->
+    {% if urgent_complaints %}
+    <div class="section-box" style="margin-top: 25px; border-left: 4px solid #ef4444;">
+        <h3><i class="fas fa-fire" style="color: #ef4444;"></i> Urgent Cases ({{ urgent_complaints|length }})</h3>
+        <div class="complaints-list">
+            {% for complaint in urgent_complaints %}
+            <div class="complaint-item urgent">
+                <div class="complaint-header">
+                    <span class="complaint-title">{{ complaint.title|truncatewords:10 }}</span>
+                    <span class="badge urgent">URGENT</span>
+                </div>
+                <div class="complaint-meta">
+                    <span><i class="fas fa-user"></i> {{ complaint.user.get_full_name|default:complaint.user.username }}</span>
+                    <span><i class="fas fa-clock"></i> {{ complaint.created_at|date:"M d, Y" }}</span>
+                    <span><i class="fas fa-tag"></i> {{ complaint.get_status_display }}</span>
+                </div>
+                <a href="/complaints/complaint-detail/{{ complaint.id }}/" class="btn-small">View Case</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- UNASSIGNED CASES -->
+    {% if unassigned_complaints %}
+    <div class="section-box" style="margin-top: 25px; border-left: 4px solid #f59e0b;">
+        <h3><i class="fas fa-inbox" style="color: #f59e0b;"></i> Unassigned Cases ({{ unassigned_complaints|length }})</h3>
+        <div class="complaints-list">
+            {% for complaint in unassigned_complaints|slice:":10" %}
+            <div class="complaint-item">
+                <div class="complaint-header">
+                    <span class="complaint-title">{{ complaint.title|truncatewords:10 }}</span>
+                    <span class="badge priority-{{ complaint.priority|lower }}">{{ complaint.priority }}</span>
+                </div>
+                <div class="complaint-meta">
+                    <span><i class="fas fa-user"></i> {{ complaint.user.get_full_name|default:complaint.user.username }}</span>
+                    <span><i class="fas fa-clock"></i> {{ complaint.created_at|date:"M d, Y" }}</span>
+                    <span>
+                        {% if complaint.ai_classified %}
+                        <i class="fas fa-robot"></i> AI Classified
+                        {% else %}
+                        <i class="fas fa-exclamation-circle"></i> Manual Review
+                        {% endif %}
+                    </span>
+                </div>
+                <a href="/complaints/complaint-detail/{{ complaint.id }}/" class="btn-small">Assign & Review</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- MY ASSIGNED CASES -->
+    {% if recent_assigned %}
+    <div class="section-box" style="margin-top: 25px; border-left: 4px solid #8b5cf6;">
+        <h3><i class="fas fa-tasks" style="color: #8b5cf6;"></i> My Assigned Cases ({{ assigned_to_me_count }})</h3>
+        <div class="complaints-list">
+            {% for complaint in recent_assigned %}
+            <div class="complaint-item">
+                <div class="complaint-header">
+                    <span class="complaint-title">{{ complaint.title|truncatewords:10 }}</span>
+                    <span class="badge status-{{ complaint.status|lower|cut:' ' }}">{{ complaint.status }}</span>
+                </div>
+                <div class="complaint-meta">
+                    <span><i class="fas fa-user"></i> {{ complaint.user.get_full_name|default:complaint.user.username }}</span>
+                    <span><i class="fas fa-clock"></i> Updated {{ complaint.updated_at|date:"M d" }}</span>
+                </div>
+                <a href="/complaints/complaint-detail/{{ complaint.id }}/" class="btn-small">Update Status</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- DEPARTMENT STAFF -->
+    {% if department_staff %}
+    <div class="section-box" style="margin-top: 25px;">
+        <h3><i class="fas fa-users"></i> Student Affairs Team ({{ department_staff|length }})</h3>
+        <div class="staff-grid">
+            {% for staff in department_staff %}
+            <div class="staff-card">
+                <div class="staff-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="staff-info">
+                    <h4>{{ staff.get_full_name|default:staff.username }}</h4>
+                    <p class="staff-email">{{ staff.email }}</p>
+                    <p class="staff-cases">
+                        <i class="fas fa-briefcase"></i> 
+                        <strong>{{ staff.complaint_count }}</strong> cases assigned
+                    </p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dept-header {
+        background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .dept-info h1 {
+        margin: 0 0 10px;
+        font-size: 28px;
+    }
+
+    .dept-info p {
+        margin: 0;
+        font-size: 14px;
+        opacity: 0.9;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border-top: 4px solid #ec4899;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+    }
+
+    .stat-card h3 {
+        margin: 0 0 10px;
+        color: #888;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-card .number {
+        font-size: 28px;
+        font-weight: 800;
+        color: #ec4899;
+        margin: 0 0 5px;
+    }
+
+    .stat-desc {
+        margin: 0;
+        font-size: 12px;
+        color: #999;
+    }
+
+    .section-box {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .section-box h3 {
+        margin: 0 0 20px;
+        color: #ec4899;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .complaints-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .complaint-item {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 15px;
+        transition: all 0.3s;
+        background: #f9fafb;
+    }
+
+    .complaint-item:hover {
+        background: white;
+        border-color: #f472b6;
+        box-shadow: 0 4px 12px rgba(244, 114, 182, 0.1);
+    }
+
+    .complaint-item.urgent {
+        background: rgba(239, 68, 68, 0.05);
+        border-color: #fecaca;
+    }
+
+    .complaint-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        gap: 10px;
+    }
+
+    .complaint-title {
+        font-weight: 600;
+        color: #ec4899;
+    }
+
+    .badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .badge.urgent {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .badge.priority-high,
+    .badge.priority-urgent {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .badge.priority-medium {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge.priority-low {
+        background: #fbcfe8;
+        color: #9d174d;
+    }
+
+    .badge.status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge.status-inprogress {
+        background: #fbcfe8;
+        color: #9d174d;
+    }
+
+    .badge.status-resolved {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .complaint-meta {
+        display: flex;
+        gap: 15px;
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+    }
+
+    .complaint-meta span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .btn-small {
+        display: inline-block;
+        padding: 6px 12px;
+        background: #f472b6;
+        color: white;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+
+    .btn-small:hover {
+        background: #ec4899;
+        transform: translateY(-2px);
+    }
+
+    .staff-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+    }
+
+    .staff-card {
+        background: #f9fafb;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        text-align: center;
+        transition: all 0.3s;
+    }
+
+    .staff-card:hover {
+        background: white;
+        border-color: #f472b6;
+        box-shadow: 0 4px 12px rgba(244, 114, 182, 0.1);
+    }
+
+    .staff-avatar {
+        font-size: 40px;
+        color: #f472b6;
+        margin-bottom: 10px;
+    }
+
+    .staff-card h4 {
+        margin: 0 0 5px;
+        color: #ec4899;
+        font-size: 14px;
+    }
+
+    .staff-email {
+        margin: 0 0 8px;
+        font-size: 12px;
+        color: #999;
+    }
+
+    .staff-cases {
+        margin: 0;
+        font-size: 12px;
+        color: #f472b6;
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .complaint-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        [style*="grid-template-columns: 1fr 1fr"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+
+    /* Animations for dashboard elements */
+    .stat-card, .section-box, .staff-card {
+        animation: slideUpFadeIn 0.6s ease-out backwards;
+    }
+
+    .stats-grid .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stats-grid .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stats-grid .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stats-grid .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+    .section-box:nth-of-type(1) { animation-delay: 0.5s; }
+    .section-box:nth-of-type(2) { animation-delay: 0.6s; }
+    .section-box:nth-of-type(3) { animation-delay: 0.7s; }
+
+    .staff-card {
+        animation: slideUpFadeIn 0.5s ease-out backwards;
+    }
+
+    .staff-grid .staff-card:nth-child(1) { animation-delay: 0.8s; }
+    .staff-grid .staff-card:nth-child(2) { animation-delay: 0.9s; }
+    .staff-grid .staff-card:nth-child(3) { animation-delay: 1.0s; }
+    .staff-grid .staff-card:nth-child(4) { animation-delay: 1.1s; }
+
+    .complaint-item {
+        animation: fadeIn 0.4s ease-out backwards;
+    }
+
+    .complaints-list .complaint-item:nth-child(1) { animation-delay: 0.6s; }
+    .complaints-list .complaint-item:nth-child(2) { animation-delay: 0.7s; }
+    .complaints-list .complaint-item:nth-child(3) { animation-delay: 0.8s; }
+
+    @keyframes slideUpFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .stat-number {
+        animation: countUp 1.2s ease-out 0.6s forwards;
+    }
+
+    @keyframes countUp {
+        from {
+            opacity: 0.5;
+            transform: scale(0.9);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+(function() {
+    const statusCtx = document.getElementById('statusChart');
+    if (statusCtx) {
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'In Progress', 'Resolved', 'Rejected'],
+                datasets: [{
+                    data: [{{ pending_count|default:'0' }}, {{ in_progress_count|default:'0' }}, {{ resolved_count|default:'0' }}, {{ rejected_count|default:'0' }}],
+                    backgroundColor: ['#fbbf24', '#60a5fa', '#34d399', '#f87171'],
+                    borderColor: '#ffffff',
+                    borderWidth: 2
+                }]
+            },
+            options: {responsive: true, maintainAspectRatio: true, plugins: {legend: {position: 'bottom'}}}
+        });
+    }
+
+    const priorityCtx = document.getElementById('priorityChart');
+    if (priorityCtx) {
+        new Chart(priorityCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Low', 'Medium', 'High', 'Urgent'],
+                datasets: [{
+                    label: 'Cases by Priority',
+                    data: [{{ priority_distribution.Low|default:'0' }}, {{ priority_distribution.Medium|default:'0' }}, {{ priority_distribution.High|default:'0' }}, {{ priority_distribution.Urgent|default:'0' }}],
+                    backgroundColor: ['#3b82f6', '#fbbf24', '#f97316', '#ef4444'],
+                    borderRadius: 6, borderSkipped: false
+                }]
+            },
+            options: {indexAxis: 'y', responsive: true, maintainAspectRatio: true, plugins: {legend: {display: false}}, scales: {x: {beginAtZero: true}}}
+        });
+    }
+
+    // Activate nav item based on current URL
+    const currentPath = window.location.pathname;
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.classList.remove('active');
+        const href = item.getAttribute('href');
+        if (href && currentPath.includes(href.replace(/\//g, ''))) {
+            item.classList.add('active');
+        }
+    });
+})();
+</script>
+{% endblock %}

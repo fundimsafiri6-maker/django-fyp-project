@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AI Complaints System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              background: #1e3a8a ;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 12px 12px 12px 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            animation: slideUp 0.5s ease-out;
+            box-sizing: border-box;
+        }
+
+        .login-image-section {
+            flex: 0 0 30%;
+            background: linear-gradient(135deg, #5858bc 0%, #1e3a8a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px;
+            min-height: 400px;
+        }
+
+        .login-image-section img {
+            max-width: 100%;
+            max-height: 350px;
+            object-fit: contain;
+        }
+
+        .login-form-section {
+            flex: 0 0 70%;
+            display: flex;
+            flex-direction: column;
+            border-radius: 0 12px 12px 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            background: white;
+            color: #333;
+            padding: 40px 30px 30px 30px;
+            text-align: center;
+            border-bottom: none;
+        }
+
+        .header-logo {
+            font-size: 48px;
+            color: #1e3a8a;
+            margin-bottom: 15px;
+        }
+
+        .login-header h1 {
+            font-size: 24px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .login-header p {
+            font-size: 14px;
+            opacity: 0.7;
+            color: #666;
+        }
+
+        .login-body {
+            padding: 30px 40px 30px 40px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            text-align: justify;
+            box-sizing: border-box;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            text-align: justify;
+        }
+
+        .form-group input {
+            width: 88%;
+            padding: 12px 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #1e3a8a;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .password-group {
+            margin-bottom: 15px;
+        }
+
+        .show-password-checkbox {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .show-password-checkbox input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #1e3a8a;
+        }
+
+        .show-password-checkbox label {
+            margin: 0;
+            cursor: pointer;
+            text-transform: none;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: left;
+            animation: slideIn 0.4s ease-out;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 250px;
+            max-width: 350px;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .alert-error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .alert-success {
+            background: #efe;
+            color: #3c3;
+            border: 1px solid #cfc;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        .alert.fade-out {
+            animation: fadeOut 0.4s ease-out forwards;
+        }
+
+        .login-btn {
+            width: 88%;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #0c1e3c 0%, #1e3a8a 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: none;
+            letter-spacing: normal;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(30, 58, 138, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-footer {
+            text-align: justify;
+            padding-top: 15px;
+            margin-top: auto;
+            border-top: none;
+            color: #666;
+            font-size: 13px;
+        }
+
+        .login-footer a {
+            color: #1e3a8a;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .login-footer a:hover {
+            color: #0c1e3c;
+            text-decoration: underline;
+        }
+
+        footer {
+            background: #0c1e3c;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 13px;
+            margin-top: auto;
+        }
+
+        footer p {
+            margin: 8px 0;
+        }
+
+        .footer-links {
+            margin-top: 12px;
+        }
+
+        .footer-links a {
+            color: #ccc;
+            text-decoration: none;
+            margin: 0 12px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+@media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                max-width: 100%;
+            }
+
+            .login-image-section {
+                min-height: 250px;
+                padding: 20px;
+            }
+
+            .login-form-section {
+                flex: 0 0 auto;
+            }
+
+            .login-header {
+                padding: 25px 20px;
+            }
+
+            .login-header h1 {
+                font-size: 22px;
+            }
+
+            .login-body {
+                padding: 25px 15px 25px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 0 10px;
+            }
+
+            .login-header {
+                padding: 20px 15px;
+            }
+
+            .login-header h1 {
+                font-size: 20px;
+            }
+
+            .login-body {
+                padding: 20px 15px;
+            }
+
+            .login-image-section {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-content">
+    <div class="login-container">
+        <!-- Image Section -->
+        <div class="login-image-section">
+            <svg width="280" height="280" viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background Circle -->
+                <circle cx="140" cy="140" r="135" fill="rgba(255, 255, 255, 0.1)" stroke="rgba(255, 255, 255, 0.3)" stroke-width="2"/>
+                
+                <!-- Envelope/Message Icon with checkmark -->
+                <g transform="translate(50, 70)">
+                    <!-- Envelope Body -->
+                    <rect x="15" y="30" width="130" height="90" rx="6" fill="none" stroke="rgba(255, 255, 255, 0.9)" stroke-width="2.5"/>
+                    <!-- Envelope Flap -->
+                    <path d="M 15 30 L 80 70 L 145 30" fill="none" stroke="rgba(255, 255, 255, 0.9)" stroke-width="2.5" stroke-linejoin="round"/>
+                    <!-- Check mark circle -->
+                    <circle cx="100" cy="110" r="28" fill="#22c55e" stroke="white" stroke-width="2"/>
+                    <path d="M 90 110 L 98 118 L 112 104" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </g>
+            </svg>
+        </div>
+
+        <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+        
+        <!-- Form Section -->
+        <div class="login-form-section" style="border-radius: 12px;">
+            <div class="login-header" style="text-align: left;">
+               <h1>Welcome to AI Complaints System</h1>
+                <p>Please sign-in to your account and start the session</p>
+            </div>
+
+            <div class="login-body">
+                <form method="POST">
+                    {% csrf_token %}
+
+<div class="form-group">
+                         <label for="username"><i class="fas fa-user"></i> Username</label>
+                         <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                     </div>
+
+                     <div class="form-group">
+                         <label for="password"><i class="fas fa-lock"></i> Password</label>
+                         <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                         <div class="show-password-checkbox">
+                             <input type="checkbox" id="showPassword" onchange="togglePasswordVisibility('password')">
+                             <label for="showPassword">Show Password</label>
+                         </div>
+                     </div>
+
+                     <button type="submit" class="login-btn">
+                         Sign in
+                     </button>
+
+                    <div class="login-footer">
+                        Don't have an account? 
+                        <a href="/accounts/register/">
+                            <i class="fas fa-user-plus"></i> Register here
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePasswordVisibility(fieldId) {
+    const field = document.getElementById(fieldId);
+    const checkbox = document.getElementById('showPassword');
+
+    if (field.type === 'password') {
+        field.type = 'text';
+        if (checkbox) checkbox.checked = true;
+    } else {
+        field.type = 'password';
+        if (checkbox) checkbox.checked = false;
+    }
+}
+
+// Auto-hide messages after 4 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.style.transition = 'opacity 0.5s ease-out';
+            alert.style.opacity = '0';
+            setTimeout(() => {
+                alert.remove();
+            }, 500);
+        }, 4000);
+    });
+});
+</script>
+
+<!-- Toast notification messages (non-intrusive) -->
+{% if messages %}
+<script>
+(function() {
+    const container = document.getElementById('toast-container');
+    {% for message in messages %}
+    (function() {
+        const toast = document.createElement('div');
+        toast.className = 'alert alert-{{ message.tags|default:"error" }}';
+let msg = '{{ message|escapejs }}';
+         // Replace escaped newlines with actual line breaks for readability
+         msg = msg.replace(/\\n/g, '<br>');
+         toast.innerHTML = '<i class="fas fa-{% if message.tags == "success" %}check-circle{% else %}exclamation-circle{% endif %}"></i> ' + msg;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => toast.remove(), 500);
+        }, 4000);
+    })();
+    {% endfor %}
+})();
+</script>
+{% endif %}
+
+<!-- Resend verification email section -->
+{% if show_resend %}
+<div id="toast-container"></div>
+<div class="resend-verification-container" style="margin-top: 20px; text-align: center;">
+    <div class="resend-verification-box" style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 20px; max-width: 400px; margin: 20px auto 0;">
+        <p style="color: #856404; font-size: 14px; margin-bottom: 15px;">
+            <i class="fas fa-exclamation-triangle"></i>
+            Didn't receive the verification email?
+        </p>
+        <p style="color: #666; font-size: 13px; margin-bottom: 15px;">
+            We can resend the verification link to <strong>{{ unverified_email }}</strong>
+        </p>
+        <form method="POST" action="{% url 'resend_verification' %}">
+            {% csrf_token %}
+            <input type="hidden" name="email" value="{{ unverified_email }}">
+            <button type="submit" class="resend-btn" style="
+                padding: 10px 25px;
+                background: linear-gradient(135deg, #1e3a8a 0%, #0c1e3c 100%);
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+            ">Resend Verification Email</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+</body>
+</html>

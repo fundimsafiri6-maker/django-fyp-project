@@ -1,0 +1,21 @@
+Dear {{ user.username }},
+
+Good news! Your complaint has been resolved.
+
+Complaint Details:
+- ID: #{{ complaint.id }}
+- Title: {{ complaint.title }}
+- Category: {{ complaint.category|default:"N/A" }}
+- Submitted: {{ complaint.created_at|date:"F d, Y" }}
+
+{% if response_text %}
+Response from {{ site_name }}:
+{{ response_text }}
+{% endif %}
+
+If you have any further questions or concerns, please feel free to contact us or submit a new complaint through the portal.
+
+Thank you for using {{ site_name }}.
+
+Best regards,
+{{ site_name }} Team

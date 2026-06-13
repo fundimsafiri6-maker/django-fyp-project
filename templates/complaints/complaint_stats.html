@@ -1,0 +1,578 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Statistics | AI Complaints System{% endblock %}
+
+{% block header_title %}
+<i class="fas fa-chart-bar"></i> Analytics & Reports
+{% endblock %}
+
+{% block header_subtitle %}
+System-wide complaint overview and insights
+{% endblock %}
+
+{% block sidebar_nav %}
+{% if user.role == 'staff' or user.role == 'admin' %}
+<!-- STAFF/ADMIN SIDEBAR -->
+<div class="nav-section">
+    <div class="nav-section-title">Main</div>
+    <a href="/accounts/staff-dashboard/" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Dashboard</span>
+    </a>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Complaints</div>
+    <a href="/assign-complaints/" class="nav-item">
+        <i class="fas fa-tasks"></i>
+        <span>Assigned Complaints</span>
+    </a>
+    <a href="/complaints-stats/" class="nav-item active">
+        <i class="fas fa-chart-bar"></i>
+        <span>Analytics</span>
+    </a>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Account</div>
+    <a href="/accounts/profile/" class="nav-item">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </a>
+    <a href="/accounts/settings/" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+    </a>
+    <a href="/accounts/help/" class="nav-item">
+        <i class="fas fa-question-circle"></i>
+        <span>Help & Support</span>
+    </a>
+</div>
+{% else %}
+<!-- STUDENT SIDEBAR -->
+<div class="nav-section">
+    <div class="nav-section-title">Main</div>
+    <a href="/accounts/student-dashboard/" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Dashboard</span>
+    </a>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Complaints</div>
+    <a href="/submit-complaint/" class="nav-item">
+        <i class="fas fa-plus-circle"></i>
+        <span>Submit Complaint</span>
+    </a>
+    <a href="/my-complaints/" class="nav-item">
+        <i class="fas fa-list"></i>
+        <span>My Complaints</span>
+    </a>
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Account</div>
+    <a href="/accounts/profile/" class="nav-item">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </a>
+    <a href="/accounts/settings/" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+    </a>
+    <a href="/accounts/help/" class="nav-item">
+        <i class="fas fa-question-circle"></i>
+        <span>Help & Support</span>
+    </a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f9;
+        }
+
+        .topbar {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .topbar h2 {
+            margin: 0 0 5px;
+            color: #0c1e3c;
+            font-size: 28px;
+        }
+
+        .topbar p {
+            margin: 5px 0 0;
+            color: #666;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            text-align: center;
+            border-top: 4px solid #1e3a8a;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+        }
+
+        .stat-card h3 {
+            margin: 0 0 12px;
+            color: #888;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 800;
+            color: #1e3a8a;
+            margin: 0;
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .chart-container h3 {
+            margin: 0 0 20px;
+            color: #0c1e3c;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-container h3 i {
+            color: #1e3a8a;
+        }
+
+        .chart-box {
+            position: relative;
+            height: 300px;
+        }
+
+        .status-bar-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-top: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .status-bar-section h3 {
+            margin: 0 0 20px;
+            color: #0c1e3c;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-bar {
+            background: #e5e7eb;
+            height: 30px;
+            border-radius: 6px;
+            display: flex;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .pending {
+            background: linear-gradient(90deg, #fbbf24, #f59e0b);
+            flex: var(--pending-flex);
+            transition: flex 0.5s ease;
+        }
+
+        .in-progress {
+            background: linear-gradient(90deg, #60a5fa, #3b82f6);
+            flex: var(--progress-flex);
+            transition: flex 0.5s ease;
+        }
+
+        .resolved {
+            background: linear-gradient(90deg, #34d399, #10b981);
+            flex: var(--resolved-flex);
+            transition: flex 0.5s ease;
+        }
+
+        .rejected {
+            background: linear-gradient(90deg, #f87171, #ef4444);
+            flex: var(--rejected-flex);
+            transition: flex 0.5s ease;
+        }
+
+        .status-legend {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-box {
+            width: 16px;
+            height: 16px;
+            border-radius: 3px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card, .chart-container, .status-bar-section {
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="content-section" style="background: transparent; box-shadow: none; padding: 0;">
+    <!-- Filter Box -->
+    <form method="GET" class="filter-box" style="margin-bottom: 25px;">
+        <input type="search" name="search" placeholder="Search by complaint title..." value="{{ search_query }}" style="flex: 1; min-width: 250px;">
+        
+        <select name="status" style="min-width: 150px;">
+            <option value="">All Status</option>
+            <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+            <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress</option>
+            <option value="Resolved" {% if status_filter == 'Resolved' %}selected{% endif %}>Resolved</option>
+            <option value="Rejected" {% if status_filter == 'Rejected' %}selected{% endif %}>Rejected</option>
+        </select>
+
+        <button type="submit" class="filter-btn">
+            <i class="fas fa-search"></i> Filter
+        </button>
+        <a href="/complaints-stats/" class="filter-btn filter-btn-reset">
+            <i class="fas fa-redo"></i> Reset
+        </a>
+    </form>
+
+    <div class="topbar">
+        <h2><i class="fas fa-chart-bar"></i> Complaint Statistics & Analytics</h2>
+        <p>{% if search_query or status_filter %}Filtered overview - {{ complaints|length }} complaints{% else %}System-wide complaint overview and AI classification metrics{% endif %}</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3><i class="fas fa-list"></i> Total Complaints</h3>
+            <div class="number">{{ total }}</div>
+        </div>
+
+        <div class="stat-card">
+            <h3><i class="fas fa-hourglass-half"></i> Pending Review</h3>
+            <div class="number">{{ pending }}</div>
+        </div>
+
+        <div class="stat-card">
+            <h3><i class="fas fa-cogs"></i> In Progress</h3>
+            <div class="number">{{ in_progress }}</div>
+        </div>
+
+        <div class="stat-card">
+            <h3><i class="fas fa-check-circle"></i> Resolved</h3>
+            <div class="number">{{ resolved }}</div>
+        </div>
+
+        <div class="stat-card">
+            <h3><i class="fas fa-times-circle"></i> Rejected</h3>
+            <div class="number">{{ rejected }}</div>
+        </div>
+    </div>
+
+    <div class="charts-section">
+        <div class="chart-container">
+            <h3><i class="fas fa-pie-chart"></i> Status Distribution</h3>
+            <div class="chart-box">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3><i class="fas fa-doughnut"></i> Complaint Breakdown</h3>
+            <div class="chart-box">
+                <canvas id="breakdownChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <h3><i class="fas fa-bar-chart"></i> Complaint Status Histogram</h3>
+            <div class="chart-box">
+                <canvas id="histogramChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar-section">
+        <h3><i class="fas fa-bars"></i> Visual Status Overview</h3>
+        <div class="status-bar" style="--pending-flex: {{ pending }}; --progress-flex: {{ in_progress }}; --resolved-flex: {{ resolved }}; --rejected-flex: {{ rejected }};">
+            {% if pending > 0 %}<div class="pending" title="Pending: {{ pending }}"></div>{% endif %}
+            {% if in_progress > 0 %}<div class="in-progress" title="In Progress: {{ in_progress }}"></div>{% endif %}
+            {% if resolved > 0 %}<div class="resolved" title="Resolved: {{ resolved }}"></div>{% endif %}
+            {% if rejected > 0 %}<div class="rejected" title="Rejected: {{ rejected }}"></div>{% endif %}
+        </div>
+        <div class="status-legend">
+            <div class="legend-item">
+                <div class="legend-box" style="background: linear-gradient(90deg, #fbbf24, #f59e0b);"></div>
+                <span>Pending: <strong>{{ pending }}</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: linear-gradient(90deg, #60a5fa, #3b82f6);"></div>
+                <span>In Progress: <strong>{{ in_progress }}</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: linear-gradient(90deg, #34d399, #10b981);"></div>
+                <span>Resolved: <strong>{{ resolved }}</strong></span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: linear-gradient(90deg, #f87171, #ef4444);"></div>
+                <span>Rejected: <strong>{{ rejected }}</strong></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+    // Initialize charts - wait for Chart.js library to load
+    function initializeCharts() {
+        // Check if Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js not loaded');
+            setTimeout(initializeCharts, 100);
+            return;
+        }
+
+        // Status Distribution Chart
+        const statusCtx = document.getElementById('statusChart');
+        if (statusCtx) {
+            try {
+                new Chart(statusCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Pending', 'In Progress', 'Resolved'],
+                        datasets: [{
+                            data: [{{ pending }}, {{ in_progress }}, {{ resolved }}],
+                            backgroundColor: ['#fbbf24', '#60a5fa', '#34d399'],
+                            borderColor: ['#f59e0b', '#3b82f6', '#10b981'],
+                            borderWidth: 3,
+                            borderRadius: 4,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: { size: 13, weight: '600' },
+                                    color: '#555',
+                                    padding: 20,
+                                    usePointStyle: true,
+                                }
+                            }
+                        },
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true,
+                            duration: 1500,
+                            easing: 'easeInOutQuart'
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error with status chart:', e);
+            }
+        }
+
+        // Complaint Breakdown Chart
+        const breakdownCtx = document.getElementById('breakdownChart');
+        if (breakdownCtx) {
+            try {
+                new Chart(breakdownCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Pending', 'In Progress', 'Resolved', 'Rejected'],
+                        datasets: [{
+                            data: [{{ pending }}, {{ in_progress }}, {{ resolved }}, {{ rejected }}],
+                            backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#ef4444'],
+                            borderColor: '#ffffff',
+                            borderWidth: 3,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: { size: 13, weight: '600' },
+                                    color: '#555',
+                                    padding: 20,
+                                    usePointStyle: true,
+                                }
+                            }
+                        },
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true,
+                            duration: 1800,
+                            easing: 'easeInOutCubic'
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error with breakdown chart:', e);
+            }
+        }
+
+        // Status Histogram Chart
+        const histogramCtx = document.getElementById('histogramChart');
+        if (histogramCtx) {
+            try {
+                const values = [{{ pending }}, {{ in_progress }}, {{ resolved }}, {{ rejected }}];
+                const maxValue = Math.max(...values, 1);
+                
+                new Chart(histogramCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Pending', 'In Progress', 'Resolved', 'Rejected'],
+                        datasets: [{
+                            label: 'Number of Complaints',
+                            data: values,
+                            backgroundColor: [
+                                'rgba(245, 158, 11, 0.8)',
+                                'rgba(59, 130, 246, 0.8)',
+                                'rgba(16, 185, 129, 0.8)',
+                                'rgba(239, 68, 68, 0.8)'
+                            ],
+                            borderColor: [
+                                '#f59e0b',
+                                '#3b82f6',
+                                '#10b981',
+                                '#ef4444'
+                            ],
+                            borderWidth: 2,
+                            borderRadius: 6,
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'x',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: {
+                                    font: { size: 13, weight: '600' },
+                                    color: '#555',
+                                    padding: 20,
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: maxValue + 2,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)',
+                                    drawBorder: false,
+                                },
+                                ticks: {
+                                    stepSize: 1,
+                                    font: { size: 12 },
+                                    color: '#888',
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false,
+                                },
+                                ticks: {
+                                    font: { size: 12, weight: '500' },
+                                    color: '#555',
+                                }
+                            }
+                        },
+                        animation: {
+                            duration: 1500,
+                            easing: 'easeInOutQuad'
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error with histogram chart:', e);
+            }
+        }
+    }
+
+    // Initialize when page is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initializeCharts, 500);
+        });
+    } else {
+        setTimeout(initializeCharts, 500);
+    }
+</script>
+{% endblock %}

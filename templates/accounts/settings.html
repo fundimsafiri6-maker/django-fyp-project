@@ -1,0 +1,220 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}Settings | AI Complaints System{% endblock %}
+
+{% block header_title %}<i class="fas fa-cog"></i> Settings{% endblock %}
+{% block header_subtitle %}Manage your preferences and account settings{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .settings-group {
+        margin-bottom: 25px;
+    }
+
+    .settings-group h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #0c1e3c;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .setting-item {
+        background: #f9fafb;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .setting-item-content p {
+        margin: 0;
+    }
+
+    .setting-item-title {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 4px;
+    }
+
+    .setting-item-description {
+        font-size: 13px;
+        color: #999;
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 18px;
+        width: 18px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+        background-color: #1e3a8a;
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(26px);
+    }
+
+    .danger-zone {
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+    }
+
+    .danger-zone h3 {
+        color: #991b1b;
+        margin-top: 0;
+        margin-bottom: 12px;
+    }
+
+    .danger-zone p {
+        color: #b91c1c;
+        margin: 0 0 12px;
+        font-size: 13px;
+    }
+
+    .danger-btn {
+        background: #ef4444;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .danger-btn:hover {
+        background: #dc2626;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="section-content">
+        <div class="settings-container">
+            <div class="settings-group">
+                <h3><i class="fas fa-bell"></i> Notifications</h3>
+                
+                <div class="setting-item">
+                    <div class="setting-item-content">
+                        <p class="setting-item-title">Email Notifications</p>
+                        <p class="setting-item-description">Receive updates via email</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-item-content">
+                        <p class="setting-item-title">Push Notifications</p>
+                        <p class="setting-item-description">Get system notifications</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-item-content">
+                        <p class="setting-item-title">Complaint Updates</p>
+                        <p class="setting-item-description">Notify on complaint status changes</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h3><i class="fas fa-eye"></i> Privacy</h3>
+                
+                <div class="setting-item">
+                    <div class="setting-item-content">
+                        <p class="setting-item-title">Profile Visibility</p>
+                        <p class="setting-item-description">Control who can see your profile</p>
+                    </div>
+                    <select style="width: 150px; padding: 6px; border: 1px solid #ddd; border-radius: 6px;">
+                        <option>Private</option>
+                        <option>Staff Only</option>
+                        <option>Public</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <h3><i class="fas fa-lock"></i> Security</h3>
+                
+                <div class="setting-item">
+                    <div class="setting-item-content">
+                        <p class="setting-item-title">Two-Factor Authentication</p>
+                        <p class="setting-item-description">Add an extra layer of security</p>
+                    </div>
+                    <button class="btn" style="padding: 8px 16px; background: #1e3a8a; color: white; border: none; border-radius: 6px; cursor: pointer;">Enable</button>
+                </div>
+
+                <div class="setting-item">
+                    <div class="setting-item-content">
+                        <p class="setting-item-title">Change Password</p>
+                        <p class="setting-item-description">Update your account password</p>
+                    </div>
+                    <button class="btn" style="padding: 8px 16px; background: #1e3a8a; color: white; border: none; border-radius: 6px; cursor: pointer;">Change</button>
+                </div>
+            </div>
+
+            <div class="danger-zone">
+                <h3>⚠️ Danger Zone</h3>
+                <p>Irreversible and destructive actions</p>
+                <button class="danger-btn" onclick="alert('Account deletion would be processed here');">Delete Account</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

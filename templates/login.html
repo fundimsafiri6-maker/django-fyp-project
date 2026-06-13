@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Login - AI Complaints System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+        }
+        .login-container {
+            display: flex;
+            width: 100%;
+            min-height: 100vh;
+        }
+        .image-panel {
+            flex: 1;
+            background: linear-gradient(135deg, #0c1e3c 0%, #1e3a8a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+        .image-panel img {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+        .form-panel {
+            flex: 3;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+        .login-box {
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-box h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #0c1e3c;
+            font-size: 24px;
+        }
+        .login-box h2 i {
+            color: #1e3a8a;
+            margin-right: 10px;
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        .input-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            font-size: 16px;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            margin: 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .login-box input:focus {
+            outline: none;
+            border-color: #1e3a8a;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #0c1e3c 0%, #1e3a8a 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .login-box button:hover {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+        }
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+            }
+            .image-panel {
+                min-height: 30vh;
+            }
+            .form-panel {
+                min-height: 70vh;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="image-panel">
+        <img src="https://images.unsplash.com/photo-1560184897-691c4e0e4e5c?w=600&h=800&fit=crop" alt="AI Complaints System">
+    </div>
+    <div class="form-panel">
+        <div class="login-box">
+            <h2><i class="fas fa-shield-alt"></i> AI Complaints System</h2>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" name="username" placeholder="Username" required>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" name="password" placeholder="Password" required>
+                </div>
+
+                <button type="submit"><i class="fas fa-sign-in-alt"></i> Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

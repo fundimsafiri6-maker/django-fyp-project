@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI-Powered Complaints Handling System | UDOM-CIVE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Footer CSS -->
+    <link rel="stylesheet" href="/static/footer.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background-color: #f0f4f8;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar-custom {
+            background: linear-gradient(135deg, #0c1e3c 0%, #1e3a8a 100%);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .navbar-custom .navbar-brand {
+            font-weight: 600;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-custom .navbar-brand i {
+            font-size: 24px;
+        }
+
+        .navbar-custom .nav-link {
+            transition: all 0.3s;
+            padding: 8px 14px !important;
+            margin: 0 4px;
+            border-radius: 4px;
+        }
+
+        .navbar-custom .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            flex: 1;
+        }
+
+        .page-title {
+            color: #0c1e3c;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        footer {
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-custom .navbar-brand {
+                font-size: 16px;
+            }
+
+            .navbar-custom .navbar-brand i {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER / NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-comments"></i>
+            AI Complaints System
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            {% if user.is_authenticated %}
+            <ul class="navbar-nav ms-auto">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/accounts/student-dashboard/">
+                        <i class="fas fa-chart-line"></i> Dashboard
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/submit-complaint/">
+                        <i class="fas fa-feather"></i> Submit Complaint
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link" href="/accounts/profile/">
+                        <i class="fas fa-user-circle"></i> Account
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link text-warning" href="/accounts/logout/">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+
+            </ul>
+            {% else %}
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/accounts/login/">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/accounts/register/">
+                        <i class="fas fa-user-plus"></i> Register
+                    </a>
+                </li>
+            </ul>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+
+<!-- PAGE CONTENT -->
+<div class="container mt-4 mb-5">
+    {% block content %}
+    {% endblock %}
+</div>
+
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-content">
+        <div class="footer-section">
+            <p><strong><i class="fas fa-comments"></i> AI-Powered Complaints Handling System</strong></p>
+            <p>College of Informatics & Virtual Education (CIVE)<br>University of Dodoma (UDOM), Tanzania</p>
+        </div>
+        <div class="footer-links">
+            <a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+            <a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a>
+            <a href="/accounts/help/"><i class="fas fa-question-circle"></i> Help & Support</a>
+            <a href="#"><i class="fas fa-envelope"></i> Contact Us</a>
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-bottom">
+            <p>© 2026 UDOM-CIVE. All rights reserved. | Intelligent complaint management powered by AI technology.</p>
+        </div>

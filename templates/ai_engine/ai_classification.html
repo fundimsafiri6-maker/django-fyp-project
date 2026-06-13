@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h3>AI Analysis Result</h3>
+
+<p><strong>Complaint:</strong> {{ complaint.title }}</p>
+
+{% if ai_result %}
+    <p><strong>Predicted Category:</strong> {{ ai_result.predicted_category }}</p>
+    <p><strong>Sentiment:</strong> {{ ai_result.sentiment }}</p>
+    <p><strong>Urgency Score:</strong> {{ ai_result.urgency_score }}</p>
+{% else %}
+    <p>No AI analysis available.</p>
+{% endif %}
+
+{% endblock %}

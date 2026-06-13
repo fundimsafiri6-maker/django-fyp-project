@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Complaints System{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/dashboard.css">
+    <link rel="stylesheet" href="/static/footer.css">
+    <style>
+        /* Search & Filter Box */
+        .filter-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-box input, .filter-box select {
+            padding: 10px 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .filter-box input:focus, .filter-box select:focus {
+            outline: none;
+            border-color: #1e3a8a;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .filter-box input[type="search"] {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .filter-box select {
+            min-width: 150px;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            background: #1e3a8a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            background: #1e40af;
+        }
+
+        .filter-btn-reset {
+            background: #e5e7eb;
+            color: #333;
+        }
+
+        .filter-btn-reset:hover {
+            background: #d1d5db;
+        }
+
+        .badge-resolved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-progress {
+            background: #bfdbfe;
+            color: #1e40af;
+        }
+
+        .badge-pending {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        @media (max-width: 768px) {
+            .filter-box {
+                flex-direction: column;
+            }
+
+            .filter-box input[type="search"] {
+                min-width: 100%;
+            }
+
+            .filter-box select {
+                min-width: 100%;
+            }
+
+            .filter-btn, .filter-btn-reset {
+                min-width: 100%;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="dashboard-header">
+    <div class="header-left">
+        <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <div class="header-title">
+            <h1>{% block header_title %}<i class="fas fa-graduation-cap"></i> Dashboard{% endblock %}</h1>
+            <p>{% block header_subtitle %}Manage and track your complaints efficiently{% endblock %}</p>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <div class="user-info">
+            <div class="avatar">{{ user.username|first|upper }}</div>
+            <div class="user-details">
+                <p><strong>{{ user.get_full_name|default:user.username }}</strong></p>
+                <p class="user-role">{{ user.get_role_display }}</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <a href="/accounts/logout/" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+    </div>
+
+    {% block sidebar_nav %}
+    <!-- Role-based sidebar navigation -->
+    {% if user.role == 'staff' or user.role == 'admin' %}
+    <!-- STAFF SIDEBAR -->
+    <div class="nav-section">
+        <div class="nav-section-title">Main</div>
+        <a href="/accounts/staff-dashboard/" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </div>
+
+    <div class="nav-section">
+        <div class="nav-section-title">Complaints</div>
+        <a href="/assign-complaints/" class="nav-item">
+            <i class="fas fa-tasks"></i>
+            <span>Assigned Complaints</span>
+        </a>
+        <a href="/complaints-stats/" class="nav-item">
+            <i class="fas fa-chart-bar"></i>
+            <span>Analytics</span>
+        </a>
+    </div>
+
+    <div class="nav-section">
+        <div class="nav-section-title">Account</div>
+        <a href="/accounts/profile/" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+        <a href="/accounts/settings/" class="nav-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+        <a href="/accounts/help/" class="nav-item">
+            <i class="fas fa-question-circle"></i>
+            <span>Help & Support</span>
+        </a>
+    </div>
+    {% else %}
+    <!-- STUDENT SIDEBAR (Default) -->
+    <div class="nav-section">
+        <div class="nav-section-title">Main</div>
+        <a href="/accounts/student-dashboard/" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </a>
+    </div>
+
+    <div class="nav-section">
+        <div class="nav-section-title">Complaints</div>
+        <a href="/submit-complaint/" class="nav-item">
+            <i class="fas fa-plus-circle"></i>
+            <span>Submit Complaint</span>
+        </a>
+        <a href="/my-complaints/" class="nav-item">
+            <i class="fas fa-list"></i>
+            <span>My Complaints</span>
+        </a>
+    </div>
+
+    <div class="nav-section">
+        <div class="nav-section-title">Account</div>
+        <a href="/accounts/profile/" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+        <a href="/accounts/settings/" class="nav-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+        <a href="/accounts/help/" class="nav-item">
+            <i class="fas fa-question-circle"></i>
+            <span>Help & Support</span>
+        </a>
+    </div>
+    {% endif %}
+    {% endblock %}
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+    {% block content %}
+    <!-- Page content goes here -->
+    {% endblock %}
+</div>
+
+<script>
+// CRITICAL: Early inline initialization - runs BEFORE external scripts
+// This prevents visual jump when page loads
+(function() {
+    console.log('[INLINE] Running early initialization');
+    const saved = localStorage.getItem('sidebarCollapsed') === 'true';
+    const sidebar = document.getElementById('sidebar');
+    const main = document.querySelector('.main-content');
+    
+    if (sidebar && main) {
+        if (saved) {
+            sidebar.classList.add('collapsed');
+            main.style.setProperty('margin-left', '70px', 'important');
+            main.style.setProperty('width', 'calc(100% - 70px)', 'important');
+            console.log('[INLINE] Collapsed');
+        } else {
+            sidebar.classList.remove('collapsed');
+            main.style.setProperty('margin-left', '280px', 'important');
+            main.style.setProperty('width', 'calc(100% - 280px)', 'important');
+            console.log('[INLINE] Expanded');
+        }
+    }
+})();
+</script>
+
+<script src="/static/dashboard.js"></script>
+
+<footer>
+    <div class="footer-content">
+        <div class="footer-section">
+            <p><strong><i class="fas fa-comments"></i> AI-Powered Complaints Handling System</strong></p>
+            <p>College of Informatics & Virtual Education (CIVE) - UDOM</p>
+        </div>
+        <div class="footer-links">
+            <a href="/accounts/profile/"><i class="fas fa-user"></i> My Profile</a>
+            <a href="/accounts/settings/"><i class="fas fa-cog"></i> Settings</a>
+            <a href="/accounts/help/"><i class="fas fa-question-circle"></i> Help & Support</a>
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-bottom">
+            <p>© 2026 UDOM-CIVE. All rights reserved. | Intelligent complaint management powered by AI technology.</p>
+        </div>
+    </div>
+</footer>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

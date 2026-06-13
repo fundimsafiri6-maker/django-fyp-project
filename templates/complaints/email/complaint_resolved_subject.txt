@@ -1,0 +1,1 @@
+Your Complaint #{{ complaint.id }} has been Resolved - {{ site_name }}

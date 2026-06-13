@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Admin Analytics Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            color: #333;
+        }
+        h1 {
+            color: #1e3a8a;
+            border-bottom: 3px solid #1e3a8a;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #1e3a8a;
+            margin-top: 30px;
+            font-size: 18px;
+        }
+        .report-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .report-header h1 {
+            border: none;
+            font-size: 28px;
+        }
+        .report-header p {
+            color: #666;
+            font-size: 14px;
+        }
+        .summary-box {
+            background: #f8f9fa;
+            border-left: 4px solid #1e3a8a;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-top: 5px;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+        }
+        .section h2 {
+            margin-top: 0;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            text-align: left;
+            font-size: 12px;
+        }
+        th {
+            background: #1e3a8a;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .footer {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+        .priority-high {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .priority-medium {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        .priority-low {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .priority-urgent {
+            color: #dc3545;
+            font-weight: bold;
+            background: #ffebee;
+        }
+    </style>
+</head>
+<body>
+    <div class="report-header">
+        <h1>Admin Analytics Report</h1>
+        <p>Complaint Management System Analytics</p>
+        <p>Generated: {% now "jS F Y H:i" %}</p>
+    </div>
+
+    <div class="summary-box">
+        <h2>Executive Summary</h2>
+        <p>This report provides a comprehensive overview of the complaint management system, including complaint statistics, user distribution, and staff activity metrics.</p>
+    </div>
+
+    <div class="stat-grid">
+        <div class="stat-item">
+            <div class="stat-label">Total Complaints</div>
+            <div class="stat-value">{{ total_complaints }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value">{{ total_users }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Assigned</div>
+            <div class="stat-value">{{ assigned_complaints }}</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">Unassigned</div>
+            <div class="stat-value">{{ unassigned_complaints }}</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Complaint Status Distribution</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Count</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Pending</td>
+                    <td>{{ pending_complaints }}</td>
+                    <td>{% if total_complaints > 0 %}{{ pending_complaints|floatformat:2 }}{% else %}0.00{% endif %}%</td>
+                </tr>
+                <tr>
+                    <td>In Progress</td>
+                    <td>{{ in_progress_complaints }}</td>
+                    <td>{% if total_complaints > 0 %}{{ in_progress_complaints|floatformat:2 }}{% else %}0.00{% endif %}%</td>
+                </tr>
+                <tr>
+                    <td>Resolved</td>
+                    <td>{{ resolved_complaints }}</td>
+                    <td>{% if total_complaints > 0 %}{{ resolved_complaints|floatformat:2 }}{% else %}0.00{% endif %}%</td>
+                </tr>
+                <tr>
+                    <td>Rejected</td>
+                    <td>{{ rejected_complaints }}</td>
+                    <td>{% if total_complaints > 0 %}{{ rejected_complaints|floatformat:2 }}{% else %}0.00{% endif %}%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Complaint Priority Distribution</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Priority</th>
+                    <th>Count</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="priority-urgent">Urgent</td>
+                    <td>{{ urgent_complaints }}</td>
+                    <td>{% if total_complaints > 0 %}{{ urgent_complaints|floatformat:2 }}{% else %}0.00{% endif %}%</td>
+                </tr>
+                <tr>
+                    <td class="priority-high">High</td>
+                    <td>{{ high_complaints }}</td>
+                    <td>{% if total_complaints > 0 %}{{ high_complaints|floatformat:2 }}{% else %}0.00{% endif %}%</td>
+                </tr>
+                <tr>
+                    <td class="priority-medium">Medium</td>
+                    <td>{{ medium_complaints }}</td>
+                    <td>{% if total_complaints > 0 %}{{ medium_complaints|floatformat:2 }}{% else %}0.00{% endif %}%</td>
+                </tr>
+                <tr>
+                    <td class="priority-low">Low</td>
+                    <td>{{ low_complaints }}</td>
+                    <td>{% if total_complaints > 0 %}{{ low_complaints|floatformat:2 }}{% else %}0.00{% endif %}%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>User Distribution</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>User Role</th>
+                    <th>Count</th>
+                    <th>Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Students</td>
+                    <td>{{ total_students }}</td>
+                    <td>{% if total_users > 0 %}{{ total_students|floatformat:2 }}{% else %}0.00{% endif %}%</td>
+                </tr>
+                <tr>
+                    <td>Staff</td>
+                    <td>{{ total_staff }}</td>
+                    <td>{% if total_users > 0 %}{{ total_staff|floatformat:2 }}{% else %}0.00{% endif %}%</td>
+                </tr>
+                <tr>
+                    <td>Admins</td>
+                    <td>{{ total_admins }}</td>
+                    <td>{% if total_users > 0 %}{{ total_admins|floatformat:2 }}{% else %}0.00{% endif %}%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Key Performance Metrics</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Resolution Rate</td>
+                    <td>{{ resolution_rate }}%</td>
+                </tr>
+                <tr>
+                    <td>Pending Rate</td>
+                    <td>{{ pending_rate }}%</td>
+                </tr>
+                <tr>
+                    <td>Unassigned Complaints</td>
+                    <td>{{ unassigned_complaints }}</td>
+                </tr>
+                <tr>
+                    <td>Critical Issues (Urgent)</td>
+                    <td>{{ urgent_complaints }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    {% if staff_activity %}
+    <div class="section">
+        <h2>Top Staff Members (by Assigned Complaints)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Staff Name</th>
+                    <th>Assigned Complaints</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for staff in staff_activity %}
+                <tr>
+                    <td>{{ staff.get_full_name|default:staff.username }}</td>
+                    <td>{{ staff.complaint_count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        <p>AI Complaints Management System - University of Dodoma</p>
+        <p>Report generated automatically on {% now "jS F Y H:i" %}</p>
+    </div>
+</body>
+</html>

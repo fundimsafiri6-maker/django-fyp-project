@@ -1,0 +1,133 @@
+{% extends 'base_dashboard.html' %}
+
+{% block title %}All Complaints | AI Complaints System{% endblock %}
+
+{% block header_title %}
+<i class="fas fa-tasks"></i> All Complaints
+{% endblock %}
+
+{% block header_subtitle %}
+Review and manage all submitted complaints
+{% endblock %}
+
+{% block sidebar_nav %}
+{% if user.role == 'staff' or user.role == 'admin' %}
+<!-- STAFF/ADMIN SIDEBAR -->
+<div class="nav-section">
+    <div class="nav-section-title">Main</div>
+    {% if user.role == 'admin' %}
+    <a href="/accounts/admin-dashboard/" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Dashboard</span>
+    </a>
+    {% else %}
+    <a href="/accounts/staff-dashboard/" class="nav-item">
+        <i class="fas fa-home"></i>
+        <span>Dashboard</span>
+    </a>
+    {% endif %}
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Complaints</div>
+    <a href="/assign-complaints/" class="nav-item active">
+        <i class="fas fa-tasks"></i>
+        <span>Assigned Complaints</span>
+    </a>
+    <a href="/complaints-stats/" class="nav-item">
+        <i class="fas fa-chart-bar"></i>
+        <span>Analytics</span>
+    </a>
+    {% if user.role == 'admin' %}
+    <a href="/accounts/admin-users/" class="nav-item">
+        <i class="fas fa-users"></i>
+        <span>User Management</span>
+    </a>
+    {% endif %}
+</div>
+
+<div class="nav-section">
+    <div class="nav-section-title">Account</div>
+    <a href="/accounts/profile/" class="nav-item">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+    </a>
+    <a href="/accounts/settings/" class="nav-item">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+    </a>
+    <a href="/accounts/help/" class="nav-item">
+        <i class="fas fa-question-circle"></i>
+        <span>Help & Support</span>
+    </a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="section-header">
+        <h2><i class="fas fa-list-ul"></i> All Complaints</h2>
+    </div>
+
+    <div class="section-content">
+        <!-- Filter Box -->
+        <form method="GET" class="filter-box">
+            <input type="search" name="search" placeholder="Search by title or student name..." value="{{ search_query }}" style="flex: 1; min-width: 250px;">
+            
+            <select name="status" style="min-width: 150px;">
+                <option value="">All Status</option>
+                <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                <option value="In Progress" {% if status_filter == 'In Progress' %}selected{% endif %}>In Progress</option>
+                <option value="Resolved" {% if status_filter == 'Resolved' %}selected{% endif %}>Resolved</option>
+                <option value="Rejected" {% if status_filter == 'Rejected' %}selected{% endif %}>Rejected</option>
+            </select>
+
+            <button type="submit" class="filter-btn">
+                <i class="fas fa-search"></i> Filter
+            </button>
+            <a href="/assign-complaints/" class="filter-btn filter-btn-reset">
+                <i class="fas fa-redo"></i> Reset
+            </a>
+        </form>
+
+        {% if complaints %}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Submitted By</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for complaint in complaints %}
+                <tr>
+                    <td><strong>#{{ complaint.id }}</strong></td>
+                    <td>{{ complaint.title }}</td>
+                    <td>{{ complaint.user.get_full_name|default:complaint.user.username }}</td>
+                    <td>
+                        <span class="badge badge-{% if complaint.status == 'Pending' %}pending{% elif complaint.status == 'In Progress' %}progress{% elif complaint.status == 'Resolved' %}resolved{% else %}rejected{% endif %}">
+                            {{ complaint.status }}
+                        </span>
+                    </td>
+                    <td>{{ complaint.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        <a href="/complaint-detail/{{ complaint.id }}/" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align: center; padding: 40px; color: #666;">
+            <h3>No Complaints Found</h3>
+            <p>{% if search_query or status_filter %}No complaints match your filter criteria.{% else %}There are no complaints to display at this time.{% endif %}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

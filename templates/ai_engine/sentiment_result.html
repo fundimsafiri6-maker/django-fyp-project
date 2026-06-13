@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h3>Sentiment Analysis Result</h3>
+
+<p><strong>Complaint:</strong> {{ complaint.title }}</p>
+<p><strong>Sentiment:</strong> {{ ai_result.sentiment }}</p>
+
+{% endblock %}

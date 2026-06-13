@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Complaint Status | AI Complaints System</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #f4f6f9;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #6b7280;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .back-link:hover {
+            background: #4b5563;
+        }
+
+        h2 {
+            color: #003366;
+            margin-top: 0;
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            padding: 15px;
+            border-left: 4px solid #1e40af;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: Arial;
+            font-size: 14px;
+            background-color: white;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #1e40af;
+            box-shadow: 0 0 5px rgba(30, 64, 175, 0.3);
+        }
+
+        .current-status {
+            padding: 10px 15px;
+            background: #f9fafb;
+            border-radius: 4px;
+            margin-top: 8px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .status-progress {
+            background: #bfdbfe;
+            color: #1e40af;
+        }
+
+        .status-resolved {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .submit-btn {
+            background: #1e40af;
+            color: white;
+        }
+
+        .submit-btn:hover {
+            background: #1e3a8a;
+        }
+
+        .cancel-btn {
+            background: #e5e7eb;
+            color: #333;
+        }
+
+        .cancel-btn:hover {
+            background: #d1d5db;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert {
+            animation: slideIn 0.4s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+
+        .alert.fade-out {
+            animation: fadeOut 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="/complaint-detail/{{ complaint.id }}/" class="back-link"><i class="fas fa-arrow-left"></i> Back</a>
+
+    <h2>Update Complaint Status</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}error{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="info-box">
+        <strong>Complaint #{{ complaint.id }}:</strong> {{ complaint.title }}<br>
+        <strong>Submitted by:</strong> {{ complaint.user.get_full_name|default:complaint.user.username }}
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Current Status</label>
+            <div class="current-status">
+                <span class="status-badge status-{% if complaint.status == 'Pending' %}pending{% elif complaint.status == 'In Progress' %}progress{% elif complaint.status == 'Resolved' %}resolved{% else %}rejected{% endif %}">
+                    {{ complaint.status }}
+                </span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="status">Update to Status *</label>
+            <select id="status" name="status" required>
+                <option value="">-- Select New Status --</option>
+                <option value="Pending" {% if complaint.status == 'Pending' %}selected{% endif %}>Pending</option>
+                <option value="In Progress" {% if complaint.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                <option value="Resolved" {% if complaint.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                <option value="Rejected" {% if complaint.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+            </select>
+        </div>
+
+        <div class="button-group">
+            <button type="submit" class="submit-btn">Update Status</button>
+            <button type="button" class="cancel-btn" onclick="history.back()">Cancel</button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Auto-hide Django messages after 4 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.style.transition = 'opacity 0.5s ease-out';
+            alert.style.opacity = '0';
+            setTimeout(() => {
+                alert.remove();
+            }, 500);
+        }, 4000);
+    });
+});
+</script>
+
+</body>
+</html>

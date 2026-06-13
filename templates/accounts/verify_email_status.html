@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Verification - AI Complaints System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e232c 100%);
+            padding: 20px;
+        }
+
+        .verification-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .icon-container {
+            margin-bottom: 30px;
+        }
+
+        .icon-container i {
+            font-size: 64px;
+            color: #10b981;
+            animation: scaleIn 0.5s ease-out 0.2s both;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        h1 {
+            color: #1e3a8a;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        p {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .status-message {
+            background-color: #d1fae5;
+            border-left: 4px solid #10b981;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .status-message p {
+            margin: 0;
+            color: #065f46;
+            font-size: 14px;
+        }
+
+        .next-steps {
+            background-color: #f0f9ff;
+            border-left: 4px solid #1e3a8a;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .next-steps h3 {
+            color: #1e3a8a;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .next-steps ol {
+            margin-left: 20px;
+            color: #666;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .next-steps li {
+            margin-bottom: 10px;
+        }
+
+        .action-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #1e3a8a;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .action-button:hover {
+            background-color: #153070;
+        }
+
+        .error-icon {
+            color: #ef4444;
+        }
+
+        .error-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            border-left: 4px solid #ef4444;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .error-message p {
+            margin: 0;
+            color: #7f1d1d;
+            font-size: 14px;
+        }
+
+        .support-link {
+            color: #1e3a8a;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .support-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="verification-container" id="verification-container">
+        <!-- Messages from Django will be displayed here -->
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                <div class="icon-container">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+
+                <h1>Email Verified Successfully!</h1>
+                <p>Your email address has been verified and your account is now active.</p>
+
+                <div class="status-message">
+                    <p><strong>✓ Status:</strong> Your account is ready to use</p>
+                </div>
+
+                <div class="next-steps">
+                    <h3>Next Steps:</h3>
+                    <ol>
+                        <li>Go back to the login page</li>
+                        <li>Enter your username and password</li>
+                        <li>You'll have full access to submit and track complaints</li>
+                    </ol>
+                </div>
+
+                <p><strong>You can now sign in to your account!</strong></p>
+                <a href="{% url 'login' %}" class="action-button">Go to Login</a>
+
+                {% else %}
+                <div class="error-container">
+                    <div class="icon-container">
+                        <i class="fas fa-times-circle error-icon"></i>
+                    </div>
+
+                    <h1>Verification Failed</h1>
+
+                    <div class="error-message">
+                        <p><strong>Error:</strong> {{ message }}</p>
+                    </div>
+
+                    <p>{{ message }}</p>
+                    <p>Please try signing up again or contact support if you need assistance.</p>
+
+                    <div class="next-steps">
+                        <h3>What to do now:</h3>
+                        <ol>
+                            <li>Click below to go back to registration</li>
+                            <li>Fill out the form again with a valid email</li>
+                            <li>Check your inbox for the verification email</li>
+                        </ol>
+                    </div>
+
+                    <a href="{% url 'register' %}" class="action-button">Try Again</a>
+                    <p style="margin-top: 20px; font-size: 14px;">
+                        Need help? Contact us at <a href="mailto:support@udom-complaints.ac.tz" class="support-link">support@udom-complaints.ac.tz</a>
+                    </p>
+                </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        {% if not messages %}
+        <div class="icon-container">
+            <i class="fas fa-envelope-open-text"></i>
+        </div>
+        <h1>Email Verification</h1>
+        <p>If you were redirected here, check your email for the verification link and click it to activate your account.</p>
+        <a href="{% url 'login' %}" class="action-button">Back to Login</a>
+        {% endif %}
+    </div>
+</body>
+</html>

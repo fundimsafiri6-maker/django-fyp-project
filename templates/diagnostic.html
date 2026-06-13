@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar Toggle Diagnostic</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/dashboard.css">
+    <style>
+        .diagnostic-panel {
+            background: white;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .diagnostic-item {
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #1e3a8a;
+            padding-left: 15px;
+        }
+        .diagnostic-item.pass {
+            background: #d1fae5;
+            border-left-color: #10b981;
+        }
+        .diagnostic-item.fail {
+            background: #fee;
+            border-left-color: #ef4444;
+        }
+        .diagnostic-item.info {
+            background: #dbeafe;
+            border-left-color: #3b82f6;
+        }
+        code {
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="dashboard-header">
+    <div class="header-left">
+        <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+        <div class="header-title">
+            <h1><i class="fas fa-stethoscope"></i> Sidebar Toggle Diagnostic</h1>
+            <p>System health check</p>
+        </div>
+    </div>
+</div>
+
+<!-- SIDEBAR (for testing the toggle) -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-logo"></div>
+    <div class="nav-section">
+        <div class="nav-section-title">Navigation</div>
+        <a href="/" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+    </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+    <div class="diagnostic-panel">
+        <h2><i class="fas fa-check-circle"></i> Diagnostic Report</h2>
+        
+        <div id="diagnostics"></div>
+        
+        <h3 style="margin-top: 30px;">Test Toggle Effect</h3>
+        <p>Click the menu button in the header above to toggle the sidebar.</p>
+        <button onclick="manualTest()" style="padding: 10px 20px; background: #1e3a8a; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;">
+            <i class="fas fa-play"></i> Manual Toggle Test
+        </button>
+        
+        <h3 style="margin-top: 30px;">Current State</h3>
+        <div style="padding: 15px; background: #f9fafb; border-radius: 6px; font-family: monospace; overflow-x: auto;">
+            <p>Sidebar Width: <strong id="sidebarWidth">--</strong></p>
+            <p>Sidebar Classes: <strong id="sidebarClasses">--</strong></p>
+            <p>LocalStorage State: <strong id="storageState">--</strong></p>
+            <p>Main-Content Margin: <strong id="mainMargin">--</strong></p>
+        </div>
+        
+        <h3 style="margin-top: 30px;">Browser Console</h3>
+        <p>Open your browser's Developer Tools (F12) and go to the <strong>Console</strong> tab to see diagnostic messages.</p>
+        <p>Click the toggle button and check the console for log messages.</p>
+    </div>
+</div>
+
+<script src="/static/dashboard.js"></script>
+<script>
+function runDiagnostics() {
+    const diagnostics = [];
+    
+    // Check 1: Sidebar element exists
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        diagnostics.push({
+            status: 'pass',
+            message: 'Sidebar element found with ID "sidebar"'
+        });
+    } else {
+        diagnostics.push({
+            status: 'fail',
+            message: 'Sidebar element NOT found. Check if element has id="sidebar"'
+        });
+    }
+    
+    // Check 2: Main content element exists
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) {
+        diagnostics.push({
+            status: 'pass',
+            message: 'Main content element found with class "main-content"'
+        });
+    } else {
+        diagnostics.push({
+            status: 'fail',
+            message: 'Main content element NOT found. Check CSS class name'
+        });
+    }
+    
+    // Check 3: CSS loaded
+    const computed = window.getComputedStyle(sidebar);
+    if (computed.width) {
+        diagnostics.push({
+            status: 'pass',
+            message: `CSS applied: Sidebar computed width is ${computed.width}`
+        });
+    } else {
+        diagnostics.push({
+            status: 'fail',
+            message: 'CSS not properly applied to sidebar'
+        });
+    }
+    
+    // Check 4: Toggle function exists
+    if (typeof toggleSidebar === 'function') {
+        diagnostics.push({
+            status: 'pass',
+            message: 'toggleSidebar() function is available'
+        });
+    } else {
+        diagnostics.push({
+            status: 'fail',
+            message: 'toggleSidebar() function not found. Check dashboard.js'
+        });
+    }
+    
+    // Check 5: Sidebar and main-content are siblings
+    if (sidebar && mainContent && sidebar.parentNode === mainContent.parentNode) {
+        diagnostics.push({
+            status: 'pass',
+            message: 'Sidebar and main-content are siblings (required for CSS sibling selector)'
+        });
+    } else {
+        diagnostics.push({
+            status: 'fail',
+            message: 'Sidebar and main-content are NOT siblings. CSS sibling selector will not work'
+        });
+    }
+    
+    // Check 6: localStorage support
+    if (typeof(Storage) !== 'undefined') {
+        diagnostics.push({
+            status: 'pass',
+            message: 'localStorage is supported'
+        });
+    } else {
+        diagnostics.push({
+            status: 'fail',
+            message: 'localStorage is NOT supported in this browser'
+        });
+    }
+    
+    // Check 7: Transition CSS
+    const transition = computed.transition;
+    if (transition && transition.includes('width')) {
+        diagnostics.push({
+            status: 'pass',
+            message: `Transition CSS applied: ${transition}`
+        });
+    } else {
+        diagnostics.push({
+            status: 'info',
+            message: `Transition property: ${transition || 'none'} (May not include width)`
+        });
+    }
+    
+    return diagnostics;
+}
+
+function updateState() {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+    
+    const computed = window.getComputedStyle(sidebar);
+    const mainContent = document.querySelector('.main-content');
+    const mainComputed = window.getComputedStyle(mainContent);
+    
+    document.getElementById('sidebarWidth').textContent = computed.width;
+    document.getElementById('sidebarClasses').textContent = sidebar.className;
+    document.getElementById('storageState').textContent = localStorage.getItem('sidebarCollapsed') || 'not set';
+    document.getElementById('mainMargin').textContent = mainComputed.marginLeft;
+}
+
+function manualTest() {
+    console.log('Manual toggle test started');
+    toggleSidebar();
+    updateState();
+    setTimeout(() => {
+        console.log('Updated computed styles:');
+        const sidebar = document.getElementById('sidebar');
+        console.log('Sidebar width:', window.getComputedStyle(sidebar).width);
+        console.log('Sidebar classes:', sidebar.className);
+    }, 100);
+}
+
+// Run diagnostics on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const diagnostics = runDiagnostics();
+    const container = document.getElementById('diagnostics');
+    
+    diagnostics.forEach(diag => {
+        const div = document.createElement('div');
+        div.className = `diagnostic-item ${diag.status}`;
+        div.innerHTML = `<strong>${diag.status.toUpperCase()}</strong>: ${diag.message}`;
+        container.appendChild(div);
+    });
+    
+    updateState();
+    
+    // Update state every second
+    setInterval(updateState, 1000);
+    
+    console.log('%cDiagnostic Report', 'font-size: 16px; font-weight: bold; color: #1e3a8a;');
+    console.log('All diagnostics:', diagnostics);
+});
+</script>
+
+</body>
+</html>

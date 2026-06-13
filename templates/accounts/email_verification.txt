@@ -1,0 +1,37 @@
+Email Verification - AI Complaints System
+==========================================
+
+Dear {{ username }},
+
+Thank you for signing up for the AI Complaints System. To activate your account and start using the platform, you need to verify your email address.
+
+VERIFY YOUR EMAIL ADDRESS:
+{{ verification_url }}
+
+Copy and paste the above link into your browser to verify your email and activate your account.
+
+IMPORTANT SECURITY NOTE:
+This verification link is unique to your account. Do not share it with anyone.
+
+LINK EXPIRATION:
+This verification link will expire in 24 hours. If it expires, you'll need to sign up again.
+
+WHY WE NEED THIS:
+- Ensure your account is secure
+- Send you important updates about your complaints
+- Help you recover your account if needed
+- Prevent unauthorized access
+
+DIDN'T SIGN UP FOR THIS ACCOUNT?
+If you didn't create this account, please ignore this email. You don't need to take any action, and your email won't be used.
+
+NEED HELP?
+If you have any questions or need assistance, please contact our support team at:
+support@udom-complaints.ac.tz
+
+---
+AI Complaints System
+University of Dar es Salaam
+© 2026 All rights reserved.
+
+This is an automated email. Please do not reply to this message.

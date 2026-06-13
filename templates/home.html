@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Complaints System - UDOM-CIVE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/footer.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #d7d8d8;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0c1e3c 0%, #1e3a8a 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        nav {
+            background: #0c1e3c;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            gap: 0;
+        }
+
+        nav a {
+            color: white;
+            padding: 14px 20px;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 3px solid transparent;
+        }
+
+        nav a:hover {
+            background: #1e3a8a;
+            border-bottom-color: #60a5fa;
+        }
+
+        nav a.active {
+            background: #1e3a8a;
+            border-bottom-color: #60a5fa;
+        }
+
+        .main-content {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 40px 20px;
+        }
+
+        .section {
+            padding: 30px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section h2 {
+            font-size: 32px;
+            color: #0c1e3c;
+            margin-bottom: 40px;
+            font-weight: 600;
+        }
+
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border-top: 4px solid #1e3a8a;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+        }
+
+        .card-icon {
+            font-size: 48px;
+            color: #1e3a8a;
+            margin-bottom: 12px;
+        }
+
+        .card h3 {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .card p {
+            font-size: 32px;
+            color: #1e3a8a;
+            font-weight: 700;
+        }
+
+        .card-footer {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        .action-section {
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-top: 30px;
+        }
+
+        .action-section h3 {
+            color: #0c1e3c;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0c1e3c 0%, #1e3a8a 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(30, 58, 138, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #1e3a8a;
+            border: 2px solid #1e3a8a;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f4f8;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 24px;
+            }
+
+            .section h2 {
+                font-size: 24px;
+            }
+
+            nav {
+                gap: 0;
+            }
+
+            nav a {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1><i class="fas fa-comments"></i> AI-Powered Complaints Handling System</h1>
+    <p>College of Informatics & Virtual Education (CIVE) - UDOM</p>
+</header>
+
+<nav>
+    <a href="/" class="active" onclick="setActive(event)"><i class="fas fa-home"></i> Home</a>
+    <a href="/accounts/login/" onclick="setActive(event)"><i class="fas fa-sign-in-alt"></i> Login</a>
+    <a href="/accounts/register/" onclick="setActive(event)"><i class="fas fa-user-plus"></i> Register</a>
+    <a href="/accounts/help/" onclick="setActive(event)"><i class="fas fa-question-circle"></i> Help & Support</a>
+</nav>
+
+<div class="main-content">
+    <div class="section">
+        <h2><i class="fas fa-chart-bar"></i> System Overview</h2>
+
+        <div class="card-container">
+            <div class="card">
+                <div class="card-icon"><i class="fas fa-layer-group"></i></div>
+                <h3>Total Complaints</h3>
+                <p>120</p>
+                <div class="card-footer">All-time records</div>
+            </div>
+            <div class="card">
+                <div class="card-icon"><i class="fas fa-pause-circle"></i></div>
+                <h3>Pending</h3>
+                <p>35</p>
+                <div class="card-footer">Awaiting resolution</div>
+            </div>
+            <div class="card">
+                <div class="card-icon"><i class="fas fa-gears"></i></div>
+                <h3>In Progress</h3>
+                <p>25</p>
+                <div class="card-footer">Being handled</div>
+            </div>
+            <div class="card">
+                <div class="card-icon"><i class="fas fa-circle-check"></i></div>
+                <h3>Resolved</h3>
+                <p>60</p>
+                <div class="card-footer">Successfully closed</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-section">
+        <h3>Get Started</h3>
+        <div class="btn-group">
+            <a href="/accounts/login/" class="btn btn-primary">
+                <i class="fas fa-sign-in-alt"></i> Login to Your Account
+            </a>
+            <a href="/accounts/register/" class="btn btn-secondary">
+                <i class="fas fa-user-plus"></i> Create New Account
+            </a>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="footer-content">
+        <div class="footer-section">
+            <p><strong><i class="fas fa-comments"></i> AI-Powered Complaints Handling System</strong></p>
+            <p>College of Informatics & Virtual Education (CIVE) - UDOM</p>
+        </div>
+        <div class="footer-links">
+            <a href="#"><i class="fas fa-shield-alt"></i> Privacy Policy</a>
+            <a href="#"><i class="fas fa-file-contract"></i> Terms of Service</a>
+            <a href="/accounts/help/"><i class="fas fa-question-circle"></i> Help & Support</a>
+            <a href="#"><i class="fas fa-envelope"></i> Contact Us</a>
+        </div>
+        <div class="footer-divider"></div>
+        <div class="footer-bottom">
+            <p>© 2026 UDOM-CIVE. All rights reserved. | Built with modern technology for efficient complaint management.</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+function setActive(event) {
+    let links = document.querySelectorAll("nav a");
+    links.forEach(l => l.classList.remove("active"));
+    event.target.closest('a').classList.add("active");
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email - AI Complaints System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .email-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e232c 100%);
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        .email-header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .email-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .email-body {
+            padding: 40px 30px;
+        }
+        
+        .email-body h2 {
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+        
+        .email-body p {
+            margin-bottom: 20px;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        
+        .verification-box {
+            background-color: #f9f9f9;
+            border-left: 4px solid #1e3a8a;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 4px;
+        }
+        
+        .verification-box p {
+            margin-bottom: 0;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .verification-box a {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 30px;
+            background-color: #1e3a8a;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .verification-box a:hover {
+            background-color: #153070;
+        }
+        
+        .button-text {
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .copy-link {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 4px;
+            word-break: break-all;
+            font-size: 12px;
+            color: #333;
+            margin-top: 15px;
+        }
+        
+        .email-footer {
+            background-color: #f9f9f9;
+            padding: 20px 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .email-footer p {
+            margin: 8px 0;
+        }
+        
+        .important-note {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #856404;
+        }
+        
+        .important-note strong {
+            color: #7a4f00;
+        }
+        
+        .expiry-notice {
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #721c24;
+        }
+        
+        .highlight {
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="email-header">
+            <h1>📧 Verify Your Email</h1>
+            <p>AI Complaints System - University of Dar es Salaam</p>
+        </div>
+        
+        <!-- Body -->
+        <div class="email-body">
+            <h2>Welcome, {{ username }}!</h2>
+            
+            <p>Thank you for signing up for the AI Complaints System. To activate your account and start using the platform, you need to verify your email address.</p>
+            
+            <div class="verification-box">
+                <p>Click the button below to verify your email and activate your account:</p>
+                <div class="button-text">
+                    <a href="{{ verification_url }}">Verify Email Address</a>
+                </div>
+                <p style="margin-top: 15px; font-size: 12px;">Or copy and paste this link in your browser:</p>
+                <div class="copy-link">{{ verification_url }}</div>
+            </div>
+            
+            <div class="important-note">
+                <strong>Important:</strong> This verification link is unique to your account. Do not share it with anyone.
+            </div>
+            
+            <div class="expiry-notice">
+                <strong>⏰ Note:</strong> This verification link will expire in <strong>24 hours</strong>. If it expires, you'll need to sign up again.
+            </div>
+            
+            <p><strong>Why we need this:</strong> Verifying your email helps us:</p>
+            <ul style="margin-left: 20px; margin-bottom: 20px;">
+                <li>Ensure your account is secure</li>
+                <li>Send you important updates about your complaints</li>
+                <li>Help you recover your account if needed</li>
+                <li>Prevent unauthorized access</li>
+            </ul>
+            
+            <p><strong>Didn't sign up for this account?</strong></p>
+            <p>If you didn't create this account, please ignore this email. You don't need to take any action, and your email won't be used.</p>
+            
+            <p>
+                If you have any questions or need assistance, please contact our support team at 
+                <span class="highlight">support@udom-complaints.ac.tz</span>
+            </p>
+        </div>
+        
+        <!-- Footer -->
+        <div class="email-footer">
+            <p><strong>AI Complaints System</strong></p>
+            <p>University of Dar es Salaam</p>
+            <p>© 2026 All rights reserved.</p>
+            <p style="margin-top: 15px; color: #999;">This is an automated email. Please do not reply to this message.</p>
+        </div>
+    </div>
+</body>
+</html>

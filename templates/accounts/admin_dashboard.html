@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard | AI Complaints - UDOM CIVE</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrfmiddlewaretoken" content="dummy-token-for-testing">
+
+    <style>
+        body{
+            margin:0;
+            font-family: Arial, Helvetica, sans-serif;
+            background:#f4f6f9;
+        }
+
+        /* HEADER */
+        .header{
+            background:#003366;
+            color:white;
+            padding:15px 25px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header h2{
+            margin:0;
+            font-size:1.2rem;
+        }
+
+        .logout-btn{
+            background:#ff4d4d;
+            border:none;
+            padding:8px 15px;
+            color:white;
+            cursor:pointer;
+            border-radius:4px;
+        }
+
+        /* LAYOUT */
+        .container{
+            display:flex;
+            min-height: calc(100vh - 120px);
+        }
+
+        /* SIDEBAR - inabakia visible kila wakati */
+        .sidebar {
+            width: 240px;
+            background: #002244;
+            min-height: 100%;
+            padding-top: 15px;
+            transition: width 0.3s ease;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+
+        /* COLLAPSED STATE - inapungua lakini haitoweka */
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        /* Toggle button (three bars) */
+        .toggle-btn {
+            background: #003366;
+            border: none;
+            color: white;
+            font-size: 22px;
+            padding: 12px 0;
+            margin: 0 12px 20px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .toggle-btn:hover {
+            background: #00509e;
+        }
+
+        /* Menu links - nav-item class kwa ajili ya JS */
+        .sidebar a.nav-item {
+            display: flex;
+            align-items: center;
+            color: white;
+            padding: 14px 18px;
+            text-decoration: none;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: all 0.2s;
+            margin: 2px 0;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar a.nav-item:hover {
+            background: #00509e;
+        }
+        
+        .sidebar a.nav-item.active {
+            background: #00509e;
+            border-left: 4px solid #ffaa00;
+        }
+
+        /* Link text */
+        .link-text {
+            margin-left: 15px;
+            font-weight: 500;
+        }
+        
+        /* When sidebar collapsed, hide text but keep icons */
+        .sidebar.collapsed .link-text {
+            display: none;
+        }
+        
+        .sidebar.collapsed a.nav-item {
+            padding: 14px 0;
+            justify-content: center;
+        }
+
+        /* Icons */
+        .sidebar a.nav-item i {
+            font-size: 18px;
+            min-width: 24px;
+            text-align: center;
+            font-style: normal;
+        }
+
+        /* MAIN CONTENT - inabaki kulia */
+        .content{
+            flex: 1;
+            padding: 25px;
+            background: #f4f6f9;
+            transition: all 0.3s;
+            text-align: center;
+            min-width: 0;
+            max-width: calc(100% - 240px);
+        }
+
+        /* PAGE CONTENT */
+        .page-container {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .page-header {
+            margin-bottom: 25px;
+        }
+
+        .page-header h2 {
+            margin: 0 0 5px 0;
+            color: #003366;
+            font-size: 24px;
+        }
+
+        .page-header p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 15px;
+            color: #003366;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* TABLE STYLES */
+        .complaints-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .complaints-table th {
+            text-align: left;
+            padding: 15px 10px;
+            background: #f8f9fa;
+            color: #003366;
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .complaints-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 14px;
+        }
+
+        .complaints-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-progress {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-resolved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .view-btn {
+            background: #003366;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .view-btn:hover {
+            background: #00509e;
+        }
+
+        /* FILTER INPUT */
+        .filter-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 250px;
+            margin-bottom: 20px;
+        }
+
+        /* NOTIFICATION STYLES */
+        .notification {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideInRight 0.3s ease;
+        }
+        .notification-success {
+            background: #10b981;
+        }
+        .notification-error {
+            background: #ef4444;
+        }
+        .notification-info {
+            background: #3b82f6;
+        }
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* LOADING */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        /* FOOTER */
+        .footer{
+            background:#003366;
+            color:white;
+            text-align:center;
+            padding:12px;
+            font-size:13px;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <h2>AI Complaints Handling System - UDOM CIVE</h2>
+    <a href="/accounts/logout/" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+</div>
+
+<div class="container">
+
+    <!-- SIDEBAR - inabakia hapa KILA WAKATI -->
+    <div class="sidebar" id="sidebar">
+        <!-- Three bars button - Bonyeza kupunguza au kurudisha -->
+        <button class="toggle-btn" id="toggleSidebarBtn" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+
+        <!-- Navigation links - nav-item class kwa ajili ya JS -->
+        <a href="#" class="nav-item" onclick="loadSection('dashboard'); return false;" data-section="dashboard">
+            <i class="fas fa-chart-line"></i>
+            <span class="link-text">Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" onclick="loadSection('complaints'); return false;" data-section="complaints">
+            <i class="fas fa-file-pen"></i>
+            <span class="link-text">All Complaints</span>
+        </a>
+        <a href="#" class="nav-item" onclick="loadSection('pending'); return false;" data-section="pending">
+            <i class="fas fa-pause-circle"></i>
+            <span class="link-text">Pending</span>
+        </a>
+        <a href="#" class="nav-item" onclick="loadSection('resolved'); return false;" data-section="resolved">
+            <i class="fas fa-circle-check"></i>
+            <span class="link-text">Resolved</span>
+        </a>
+        <a href="#" class="nav-item" onclick="loadSection('ai'); return false;" data-section="ai">
+            <i class="fas fa-robot"></i>
+            <span class="link-text">AI Analysis</span>
+        </a>
+        <a href="#" class="nav-item" onclick="loadSection('reports'); return false;" data-section="reports">
+            <i class="fas fa-chart-line"></i>
+            <span class="link-text">Reports</span>
+        </a>
+    </div>
+
+    <!-- RIGHT CONTENT - HAPA NDIO PAGE INABADILIKA -->
+    <div class="content" id="mainContent">
+        <!-- Content inaingizwa na JavaScript -->
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    © 2026 UDOM - College of Informatics and Virtual Education (CIVE)
+</div>
+
+<script>
+// ============ JAVASCRIPT KAMA UMEOMBA ============
+// Dashboard JavaScript Functions
+
+// Toggle Sidebar - inapunguza na kurudisha sidebar
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('mainContent');
+    
+    if (!sidebar) {
+        console.warn('Sidebar element not found. Looking for element with id="sidebar"');
+        return;
+    }
+    
+    // Toggle the collapsed class
+    const isCollapsed = sidebar.classList.toggle('collapsed');
+    
+    // Adjust content to take full width (no gap)
+    if (content) {
+        content.style.flex = '1';
+        content.style.maxWidth = isCollapsed ? 'calc(100% - 70px)' : 'calc(100% - 240px)';
+    }
+    
+    // Save state to localStorage
+    localStorage.setItem('sidebarCollapsed', isCollapsed.toString());
+    
+    // Debug info
+    console.log('Sidebar toggled. Collapsed:', isCollapsed);
+    console.log('Sidebar classes:', sidebar.className);
+}
+
+// Load sidebar collapsed state
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('mainContent');
+    if (!sidebar) {
+        console.warn('Sidebar element not found during DOMContentLoaded');
+        return;
+    }
+    
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    const isCollapsed = savedState === 'true';
+    
+    if (isCollapsed) {
+        sidebar.classList.add('collapsed');
+        if (content) {
+            content.style.flex = '1';
+            content.style.maxWidth = 'calc(100% - 70px)';
+        }
+        console.log('Sidebar restored from localStorage as collapsed');
+    } else {
+        sidebar.classList.remove('collapsed');
+        if (content) {
+            content.style.flex = '1';
+            content.style.maxWidth = 'calc(100% - 240px)';
+        }
+        console.log('Sidebar restored from localStorage as expanded');
+    }
+
+    // Load default dashboard
+    loadSection('dashboard');
+});
+
+// Show custom notification (for AJAX responses)
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideInRight 0.3s ease reverse';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Download report function
+function downloadAdminReport(type) {
+    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const timestamp = new Date().toISOString().split('T')[0];
+    let reportContent = '';
+    let filename = '';
+    
+    if (type === 'summary') {
+        filename = 'admin_summary_report_' + timestamp + '.txt';
+        reportContent = 
+'===========================================\n' +
+'ADMIN COMPLAINT SUMMARY REPORT\n' +
+'===========================================\n\n' +
+'Generated: ' + date + '\n\n' +
+'-------------------------------------------\n' +
+'SYSTEM OVERVIEW\n' +
+'-------------------------------------------\n' +
+'Total Complaints: 328\n' +
+'Pending: 42 (12.8%)\n' +
+'In Progress: 25 (7.6%)\n' +
+'Resolved: 230 (70.1%)\n' +
+'Rejected: 31 (9.5%)\n' +
+'\n===========================================\n' +
+'AI Complaints System - UDOM CIVE\n' +
+'===========================================';
+    } else if (type === 'monthly') {
+        filename = 'monthly_report_' + timestamp + '.txt';
+        reportContent = 
+'===========================================\n' +
+'MONTHLY COMPLAINT REPORT\n' +
+'===========================================\n\n' +
+'Generated: ' + date + '\n' +
+'Period: February 2026\n\n' +
+'-------------------------------------------\n' +
+'STATUS BREAKDOWN\n' +
+'-------------------------------------------\n' +
+'Total Complaints: 45\n' +
+'Pending: 12\n' +
+'In Progress: 8\n' +
+'Resolved: 22\n' +
+'Rejected: 3\n' +
+'\n===========================================\n' +
+'AI Complaints System - UDOM CIVE\n' +
+'===========================================';
+    } else if (type === 'annual') {
+        filename = 'annual_report_' + timestamp + '.txt';
+        reportContent = 
+'===========================================\n' +
+'ANNUAL COMPLAINT REPORT\n' +
+'===========================================\n\n' +
+'Generated: ' + date + '\n' +
+'Period: January - December 2026\n\n' +
+'-------------------------------------------\n' +
+'YEARLY SUMMARY\n' +
+'-------------------------------------------\n' +
+'Total Complaints: 328\n' +
+'Resolved: 230\n' +
+'Resolution Rate: 70.1%\n' +
+'\n===========================================\n' +
+'AI Complaints System - UDOM CIVE\n' +
+'===========================================';
+    } else if (type === 'category') {
+        filename = 'category_report_' + timestamp + '.txt';
+        reportContent = 
+'===========================================\n' +
+'CATEGORY SUMMARY REPORT\n' +
+'===========================================\n\n' +
+'Generated: ' + date + '\n\n' +
+'-------------------------------------------\n' +
+'COMPLAINTS BY CATEGORY\n' +
+'-------------------------------------------\n' +
+'Academic: 148 (45%)\n' +
+'Administrative: 98 (30%)\n' +
+'Facilities: 82 (25%)\n' +
+'\n===========================================\n' +
+'AI Complaints System - UDOM CIVE\n' +
+'===========================================';
+    }
+    
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    showNotification('Report downloaded!', 'success');
+}
+
+// AJAX function to load content
+function loadContent(url, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = '<div class="loading">Loading...</div>';
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.text();
+        })
+        .then(data => {
+            container.innerHTML = data;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            container.innerHTML = '<div class="error">Error loading content. Please refresh the page.</div>';
+        });
+}
+
+// Update complaint status via AJAX (no page reload)
+function updateComplaintStatus(complaintId) {
+    const statusSelect = document.getElementById('status-' + complaintId);
+    const tableRow = document.getElementById('complaint-row-' + complaintId);
+    
+    if (!statusSelect) return;
+
+    const newStatus = statusSelect.value;
+    
+    fetch(`/complaint-update/${complaintId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+        },
+        body: `status=${newStatus}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Status updated successfully!', 'success');
+            
+            // Update only the specific row if it exists
+            if (tableRow) {
+                const badgeCell = tableRow.querySelector('td:nth-child(3)');
+                if (badgeCell) {
+                    const statusClass = newStatus === 'resolved' ? 'status-resolved' : 
+                                      newStatus === 'in_progress' ? 'status-progress' : 'status-pending';
+                    const statusText = newStatus === 'resolved' ? 'Resolved' : 
+                                     newStatus === 'in_progress' ? 'In Progress' : 'Pending';
+                    badgeCell.innerHTML = `<span class="status-badge ${statusClass}">${statusText}</span>`;
+                }
+            }
+        } else {
+            showNotification('Error updating status', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred', 'error');
+    });
+}
+
+// Filter table rows
+function filterTable(inputId, tableId) {
+    const input = document.getElementById(inputId);
+    const table = document.getElementById(tableId);
+    if (!input || !table) return;
+
+    const filter = input.value.toUpperCase();
+    const rows = table.getElementsByTagName('tr');
+
+    for (let i = 1; i < rows.length; i++) {
+        const text = rows[i].textContent.toUpperCase();
+        rows[i].style.display = text.includes(filter) ? '' : 'none';
+    }
+}
+
+// ============ FUNCTION YA KUBADILISHA CONTENT ============
+// Load section - inabadilisha content KULIA tu, sidebar inabaki pale pale
+function loadSection(section){
+    const content = document.getElementById("mainContent");
+    
+    // Update active nav item
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.section === section) {
+            item.classList.add('active');
+        }
+    });
+    
+    // CONTENT KULIA - inabadilika kulingana na section
+    if(section === "dashboard"){
+        content.innerHTML = `
+            <div class="page-container">
+                <h2>Dashboard Overview</h2>
+                <p>Welcome to the AI Complaints Handling System</p>
+                
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px,1fr)); gap:20px; margin:30px 0;">
+                    <div style="background:#f8f9fa; padding:20px; border-radius:8px; text-align:center;">
+                        <h3 style="margin:0; font-size:32px; color:#003366;">128</h3>
+                        <p style="margin:5px 0 0; color:#666;">Total Complaints</p>
+                    </div>
+                    <div style="background:#f8f9fa; padding:20px; border-radius:8px; text-align:center;">
+                        <h3 style="margin:0; font-size:32px; color:#003366;">42</h3>
+                        <p style="margin:5px 0 0; color:#666;">Pending</p>
+                    </div>
+                    <div style="background:#f8f9fa; padding:20px; border-radius:8px; text-align:center;">
+                        <h3 style="margin:0; font-size:32px; color:#003366;">76</h3>
+                        <p style="margin:5px 0 0; color:#666;">Resolved</p>
+                    </div>
+                    <div style="background:#f8f9fa; padding:20px; border-radius:8px; text-align:center;">
+                        <h3 style="margin:0; font-size:32px; color:#003366;">92%</h3>
+                        <p style="margin:5px 0 0; color:#666;">AI Accuracy</p>
+                    </div>
+                </div>
+                
+                <div style="margin-top:30px;">
+                    <h3>Quick Actions</h3>
+                    <button class="view-btn" style="margin-right:10px;" onclick="showNotification('Assign Complaint feature coming soon', 'info')">Assign Complaint</button>
+                    <button class="view-btn" style="margin-right:10px;" onclick="showNotification('View Statistics feature coming soon', 'info')">View Statistics</button>
+                    <button class="view-btn" onclick="showNotification('Generate Report feature coming soon', 'info')">Generate Report</button>
+                </div>
+            </div>
+        `;
+    }
+    else if(section === "complaints"){
+        content.innerHTML = `
+            <div class="page-container">
+                <a href="#" class="back-link" onclick="loadSection('dashboard'); return false;"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+                
+                <div class="page-header">
+                    <h2>All Complaints for Assignment</h2>
+                    <p>Review and manage all submitted complaints</p>
+                </div>
+                
+                <input type="text" id="complaintFilter" class="filter-input" placeholder="&#128269; Filter complaints..." onkeyup="filterTable('complaintFilter', 'complaintsTable')">
+                
+                <table class="complaints-table" id="complaintsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title</th>
+                            <th>Submitted By</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="complaint-row-9">
+                            <td><strong>#9</strong></td>
+                            <td>cdvcgcn ehc</td>
+                            <td>lucy</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>Feb 23, 2026</td>
+                            <td><button class="view-btn" onclick="showNotification('Viewing complaint #9', 'info')">View</button></td>
+                        </tr>
+                        <tr id="complaint-row-8">
+                            <td><strong>#8</strong></td>
+                            <td>dgcvdvcdvd</td>
+                            <td>lucy</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>Feb 23, 2026</td>
+                            <td><button class="view-btn" onclick="showNotification('Viewing complaint #8', 'info')">View</button></td>
+                        </tr>
+                        <tr id="complaint-row-7">
+                            <td><strong>#7</strong></td>
+                            <td>DSHDNJTR</td>
+                            <td>lucy</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>Feb 23, 2026</td>
+                            <td><button class="view-btn" onclick="showNotification('Viewing complaint #7', 'info')">View</button></td>
+                        </tr>
+                        <tr id="complaint-row-6">
+                            <td><strong>#6</strong></td>
+                            <td>results not found</td>
+                            <td>lucy</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>Feb 23, 2026</td>
+                            <td><button class="view-btn" onclick="showNotification('Viewing complaint #6', 'info')">View</button></td>
+                        </tr>
+                        <tr id="complaint-row-5">
+                            <td><strong>#5</strong></td>
+                            <td>Results not found</td>
+                            <td>zaujla</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>Feb 20, 2026</td>
+                            <td><button class="view-btn" onclick="showNotification('Viewing complaint #5', 'info')">View</button></td>
+                        </tr>
+                        <tr id="complaint-row-4">
+                            <td><strong>#4</strong></td>
+                            <td>not understand</td>
+                            <td>test</td>
+                            <td><span class="status-badge status-progress">In Progress</span></td>
+                            <td>Feb 18, 2026</td>
+                            <td><button class="view-btn" onclick="showNotification('Viewing complaint #4', 'info')">View</button></td>
+                        </tr>
+                        <tr id="complaint-row-3">
+                            <td><strong>#3</strong></td>
+                            <td>examination results not found</td>
+                            <td>test</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>Feb 18, 2026</td>
+                            <td><button class="view-btn" onclick="showNotification('Viewing complaint #3', 'info')">View</button></td>
+                        </tr>
+                        <tr id="complaint-row-2">
+                            <td><strong>#2</strong></td>
+                            <td>Test Complaint</td>
+                            <td>testuser</td>
+                            <td><span class="status-badge status-pending">Pending</span></td>
+                            <td>Feb 18, 2026</td>
+                            <td><button class="view-btn" onclick="showNotification('Viewing complaint #2', 'info')">View</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+    else if(section === "ai"){
+        content.innerHTML = `
+            <div class="page-container">
+                <a href="#" class="back-link" onclick="loadSection('dashboard'); return false;"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+                
+                <div class="page-header">
+                    <h2>AI Analysis Dashboard</h2>
+                    <p>AI categorization and sentiment analysis results</p>
+                </div>
+                
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:25px; margin-top:20px;">
+                    <div style="background:#f8f9fa; padding:20px; border-radius:8px;">
+                        <h3 style="color:#003366; margin-top:0;">Category Distribution</h3>
+                        <div style="margin:15px 0;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                <span><i class="fas fa-graduation-cap"></i> Academic</span>
+                                <span><strong>45%</strong></span>
+                            </div>
+                            <div style="background:#e9ecef; height:8px; border-radius:4px;">
+                                <div style="width:45%; background:#003366; height:8px; border-radius:4px;"></div>
+                            </div>
+                        </div>
+                        <div style="margin:15px 0;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+<span><i class="fas fa-laptop"></i> ICT</span>
+                                 <span><strong>30%</strong></span>
+                            </div>
+                            <div style="background:#e9ecef; height:8px; border-radius:4px;">
+                                <div style="width:30%; background:#00509e; height:8px; border-radius:4px;"></div>
+                            </div>
+                        </div>
+                        <div style="margin:15px 0;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+<span><i class="fas fa-folder-open"></i> Other</span>
+                                 <span><strong>25%</strong></span>
+                            </div>
+                            <div style="background:#e9ecef; height:8px; border-radius:4px;">
+                                <div style="width:25%; background:#0077be; height:8px; border-radius:4px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background:#f8f9fa; padding:20px; border-radius:8px;">
+                        <h3 style="color:#003366; margin-top:0;">Sentiment Analysis</h3>
+                        <div style="margin:15px 0;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                <span><i class="fas fa-face-smile"></i> Positive</span>
+                                <span><strong>30%</strong></span>
+                            </div>
+                            <div style="background:#e9ecef; height:8px; border-radius:4px;">
+                                <div style="width:30%; background:#28a745; height:8px; border-radius:4px;"></div>
+                            </div>
+                        </div>
+                        <div style="margin:15px 0;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                <span><i class="fas fa-face-meh"></i> Neutral</span>
+                                <span><strong>45%</strong></span>
+                            </div>
+                            <div style="background:#e9ecef; height:8px; border-radius:4px;">
+                                <div style="width:45%; background:#ffc107; height:8px; border-radius:4px;"></div>
+                            </div>
+                        </div>
+                        <div style="margin:15px 0;">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                <span><i class="fas fa-face-frown"></i> Negative</span>
+                                <span><strong>25%</strong></span>
+                            </div>
+                            <div style="background:#e9ecef; height:8px; border-radius:4px;">
+                                <div style="width:25%; background:#dc3545; height:8px; border-radius:4px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin-top:30px;">
+                    <h3>AI Recommendations</h3>
+                    <p>Based on analysis, focus on academic complaints which form the largest category.</p>
+                    <button class="view-btn" onclick="showNotification('Analysis updated successfully', 'success')">Refresh Analysis</button>
+                </div>
+            </div>
+        `;
+    }
+    else if(section === "reports"){
+        content.innerHTML = `
+            <div class="page-container">
+                <a href="#" class="back-link" onclick="loadSection('dashboard'); return false;"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+                
+                <div class="page-header">
+                    <h2 style="font-size:18px;">Reports</h2>
+                    <button class="view-btn" onclick="downloadAdminReport('summary')" style="background:#10b981; padding:6px 12px; font-size:12px;">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                </div>
+                
+                <div style="display:flex; gap:15px; overflow-x:auto; justify-content:center;">
+                    <div style="background:#f8f9fa; padding:12px; border-radius:6px; min-width:120px; flex:1; text-align:center;">
+                        <h4 style="color:#003366; margin:0 0 8px; font-size:13px;"><i class="fas fa-calendar"></i> Monthly</h4>
+                        <p style="font-size:11px; margin:0;">45 complaints</p>
+                        <button class="view-btn" onclick="downloadAdminReport('monthly')" style="padding:4px 8px; font-size:11px;">Download</button>
+                    </div>
+                    
+                    <div style="background:#f8f9fa; padding:12px; border-radius:6px; min-width:120px; flex:1; text-align:center;">
+                        <h4 style="color:#003366; margin:0 0 8px; font-size:13px;"><i class="fas fa-chart-line"></i> Annual</h4>
+                        <p style="font-size:11px; margin:0;">328 complaints</p>
+                        <button class="view-btn" onclick="downloadAdminReport('annual')" style="padding:4px 8px; font-size:11px;">Download</button>
+                    </div>
+                    
+                    <div style="background:#f8f9fa; padding:12px; border-radius:6px; min-width:120px; flex:1; text-align:center;">
+                        <h4 style="color:#003366; margin:0 0 8px; font-size:13px;"><i class="fas fa-chart-pie"></i> Category</h4>
+                        <p style="font-size:11px; margin:0;">View breakdown</p>
+                        <button class="view-btn" onclick="downloadAdminReport('category')" style="padding:4px 8px; font-size:11px;">Download</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    else if(section === "pending"){
+        content.innerHTML = `
+            <div class="page-container">
+                <a href="#" class="back-link" onclick="loadSection('dashboard'); return false;"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+                <h2>Pending Complaints</h2>
+                <p>Complaints waiting for action: 42</p>
+                <table class="complaints-table">
+                    <thead>
+                        <tr><th>ID</th><th>Title</th><th>Submitted By</th><th>Date</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>#9</td><td>cdvcgcn ehc</td><td>lucy</td><td>Feb 23, 2026</td><td><button class="view-btn" onclick="showNotification('View complaint')">View</button></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+    else if(section === "resolved"){
+        content.innerHTML = `
+            <div class="page-container">
+                <a href="#" class="back-link" onclick="loadSection('dashboard'); return false;"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+                <h2>Resolved Complaints</h2>
+                <p>Complaints that have been resolved: 76</p>
+                <table class="complaints-table">
+                    <thead>
+                        <tr><th>ID</th><th>Title</th><th>Submitted By</th><th>Date</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>#1</td><td>Sample resolved</td><td>student</td><td>Feb 10, 2026</td><td><button class="view-btn" onclick="showNotification('View complaint')">View</button></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+}
+</script>
+
+</body>
+</html>

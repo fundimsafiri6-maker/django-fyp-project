@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Elements Diagnostic</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #adb7c8 0%, #1e3a8a 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        h1 {
+            color: #1e3a8a;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        .test-section {
+            margin-bottom: 40px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border-left: 4px solid #1e3a8a;
+        }
+
+        .test-section h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            padding-right: 45px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #1e3a8a;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .password-group {
+            position: relative;
+            display: block;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #1e3a8a;
+            font-size: 18px;
+            padding: 8px;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .password-toggle:hover {
+            color: #0c1e3c;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .test-button {
+            width: 100%;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #0c1e3c 0%, #1e3a8a 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: visible;
+            margin-bottom: 10px;
+        }
+
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(30, 58, 138, 0.3);
+        }
+
+        .test-button.long-text {
+            min-width: 300px;
+        }
+
+        .info-box {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #1e40af;
+        }
+
+        .pass {
+            background: #d1fae5;
+            border-left-color: #10b981;
+            color: #065f46;
+        }
+
+        .fail {
+            background: #fee;
+            border-left-color: #ef4444;
+            color: #7f1d1d;
+        }
+
+        .diagnostic-output {
+            background: #1f2937;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        footer {
+            background: #0c1e3c;
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 13px;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-content">
+    <div class="container">
+        <h1><i class="fas fa-flask"></i> Form Elements Diagnostic</h1>
+
+        <!-- Password Eye Toggle Test -->
+        <div class="test-section">
+            <h2>1. Password Eye Toggle Icon Test</h2>
+            <p style="margin-bottom: 15px; color: #666;">The eye icon should appear inside the password field on the right side.</p>
+            
+            <div class="form-group">
+                <label>Password (with eye toggle)</label>
+                <div class="password-group">
+                    <input type="password" id="testPassword" value="TestPassword123" placeholder="Enter password">
+                    <button class="password-toggle" onclick="togglePasswordVisibility()" title="Toggle password visibility">
+                        <i id="eyeIcon" class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="eyeTest" class="info-box fail">
+                <strong>Eye Icon Status:</strong> <span id="eyeStatus">Checking...</span>
+            </div>
+        </div>
+
+        <!-- Button Text Display Test -->
+        <div class="test-section">
+            <h2>2. Button Text Display Test</h2>
+            <p style="margin-bottom: 15px; color: #666;">All buttons below should display their full text without cuts on the right side.</p>
+            
+            <button class="test-button">Login</button>
+            <button class="test-button">Create Account</button>
+            <button class="test-button"> Complaint Form</button>
+            <button class="test-button">Update Profile Information</button>
+            <button class="test-button">Long Button Text That Should Display Completely Without Truncation</button>
+            
+            <div id="buttonTest" class="info-box fail">
+                <strong>Button Text Status:</strong> <span id="buttonStatus">Checking...</span>
+            </div>
+        </div>
+
+        <!-- Input Field Width Test -->
+        <div class="test-section">
+            <h2>3. Input Field Width Test</h2>
+            <p style="margin-bottom: 15px; color: #666;">Input fields should be fully visible and not cut off.</p>
+            
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" value="test@example.com" placeholder="Enter email">
+            </div>
+            
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" value="testuser12345" placeholder="Enter username">
+            </div>
+            
+            <div id="inputTest" class="info-box fail">
+                <strong>Input Field Status:</strong> <span id="inputStatus">Checking...</span>
+            </div>
+        </div>
+
+        <!-- CSS Properties Check -->
+        <div class="test-section">
+            <h2>4. CSS Properties Diagnostic</h2>
+            <p style="margin-bottom: 15px; color: #666;">Checking if CSS is properly loaded:</p>
+            
+            <div class="diagnostic-output" id="diagnosticOutput">
+                <p>Loading diagnostic information...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p><strong><i class="fas fa-info-circle"></i> Diagnostic Information</strong></p>
+    <p>This page tests form elements like password toggle, button text, and input field display.</p>
+    <p>Open Developer Tools (F12) → Console to see detailed diagnostic output.</p>
+</footer>
+
+<script>
+function togglePasswordVisibility() {
+    const input = document.getElementById('testPassword');
+    const icon = document.getElementById('eyeIcon');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+function runDiagnostics() {
+    // Check 1: Eye Icon Visibility
+    const eyeIcon = document.getElementById('eyeIcon');
+    const eyeButton = eyeIcon.parentElement;
+    const eyeComputed = window.getComputedStyle(eyeButton);
+    
+    let eyeVisible = eyeComputed.display !== 'none' && eyeComputed.visibility !== 'hidden';
+    document.getElementById('eyeStatus').textContent = eyeVisible ? 
+        '✓ Eye icon is visible and clickable' : 
+        '✗ Eye icon is hidden or not visible';
+    document.getElementById('eyeTest').className = eyeVisible ? 'info-box pass' : 'info-box fail';
+    
+    // Check 2: Button Text Display
+    const buttons = document.querySelectorAll('.test-button');
+    let allButtonsVisible = true;
+    buttons.forEach(button => {
+        const computed = window.getComputedStyle(button);
+        const overflow = computed.overflow;
+        if (overflow === 'hidden') {
+            allButtonsVisible = false;
+        }
+    });
+    
+    document.getElementById('buttonStatus').textContent = allButtonsVisible ? 
+        '✓ All buttons display full text' : 
+        '✗ Some buttons may have text overflow';
+    document.getElementById('buttonTest').className = allButtonsVisible ? 'info-box pass' : 'info-box fail';
+    
+    // Check 3: Input Fields
+    const inputs = document.querySelectorAll('.form-group input');
+    let allInputsVisible = true;
+    inputs.forEach(input => {
+        const computed = window.getComputedStyle(input);
+        if (computed.width === '0px') {
+            allInputsVisible = false;
+        }
+    });
+    
+    document.getElementById('inputStatus').textContent = allInputsVisible ? 
+        '✓ All input fields are properly sized' : 
+        '✗ Some input fields may be too small';
+    document.getElementById('inputTest').className = allInputsVisible ? 'info-box pass' : 'info-box fail';
+    
+    // Check 4: CSS Properties
+    const output = document.getElementById('diagnosticOutput');
+    output.innerHTML = '';
+    
+    const diagnostics = [
+        { label: 'Password Group', element: document.querySelector('.password-group') },
+        { label: 'Password Toggle Button', element: document.querySelector('.password-toggle') },
+        { label: 'Test Button', element: document.querySelector('.test-button') },
+        { label: 'Test Input', element: inputs[0] }
+    ];
+    
+    diagnostics.forEach(diag => {
+        if (diag.element) {
+            const computed = window.getComputedStyle(diag.element);
+            const p = document.createElement('p');
+            p.style.marginBottom = '12px';
+            p.innerHTML = `<strong>${diag.label}:</strong><br>
+                Display: ${computed.display}<br>
+                Visibility: ${computed.visibility}<br>
+                Position: ${computed.position}<br>
+                Z-Index: ${computed.zIndex}<br>
+                Width: ${computed.width}<br>
+                Padding: ${computed.padding}`;
+            output.appendChild(p);
+        }
+    });
+    
+    console.log('Diagnostic Report Generated');
+    console.log('Eye Icon Visible:', eyeVisible);
+    console.log('Buttons Working:', allButtonsVisible);
+    console.log('Inputs Visible:', allInputsVisible);
+}
+
+// Run diagnostics when page loads
+window.addEventListener('load', function() {
+    setTimeout(runDiagnostics, 500);
+    // Recheck every 2 seconds
+    setInterval(runDiagnostics, 2000);
+});
+</script>
+
+</body>
+</html>
