@@ -3,5 +3,10 @@ services:
     name: django-fyp-project
     env: python
     buildCommand: pip install -r requirements.txt
+<<<<<<< HEAD
     startCommand: gunicorn ai_complaints_system.wsgi:application
     runtime: python-3.11.9
+=======
+    startCommand: gunicorn your_project.wsgi:application
+    runtime: python-3.11.9
+>>>>>>> 0b35e0ecbd110441f5494db6e77cfd80d2992e93
