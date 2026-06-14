@@ -20,6 +20,13 @@ function applySidebarState() {
         console.error('[APPLY] ERROR: Elements missing');
         return;
     }
+
+    // On mobile, sidebar is an overlay - don't adjust main content margins
+    if (isMobile()) {
+        mainContent.style.setProperty('margin-left', '0', 'important');
+        mainContent.style.setProperty('width', '100%', 'important');
+        return;
+    }
     
     if (sidebarState === true) {
         // COLLAPSED STATE - NO GAP ON RIGHT
@@ -36,22 +43,52 @@ function applySidebarState() {
     }
 }
 
+function isMobile() {
+    return window.innerWidth <= 768;
+}
+
 function toggleSidebar() {
     console.log('=== TOGGLE CALLED ===');
-    console.log('Current state:', sidebarState);
     
-    // Flip the state
+    if (isMobile()) {
+        // Mobile: open/close sidebar as overlay
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        if (!sidebar) return;
+        
+        const isOpen = sidebar.classList.contains('open');
+        if (isOpen) {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.classList.remove('sidebar-open');
+        } else {
+            sidebar.classList.add('open');
+            overlay.classList.add('active');
+            document.body.classList.add('sidebar-open');
+        }
+        console.log('Mobile toggle:', isOpen ? 'closed' : 'opened');
+        return;
+    }
+    
+    // Desktop: toggle collapsed state
+    console.log('Current state:', sidebarState);
     sidebarState = !sidebarState;
     console.log('New state:', sidebarState);
     
-    // Save to localStorage
     localStorage.setItem('sidebarCollapsed', sidebarState.toString());
     console.log('Saved to localStorage');
     
-    // Apply the new state
     applySidebarState();
-    
     console.log('=== TOGGLE COMPLETE ===');
+}
+
+function closeSidebar() {
+    if (!isMobile()) return;
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('active');
+    document.body.classList.remove('sidebar-open');
 }
 
 // Early initialization - as soon as script loads

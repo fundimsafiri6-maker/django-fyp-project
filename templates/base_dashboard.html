@@ -134,6 +134,9 @@
     </div>
 </div>
 
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
 <!-- SIDEBAR -->
 <div class="sidebar" id="sidebar">
     <div class="sidebar-logo">
@@ -236,7 +239,12 @@
     const main = document.querySelector('.main-content');
     
     if (sidebar && main) {
-        if (saved) {
+        // On mobile: sidebar is overlay, main content is full width
+        if (window.innerWidth <= 768) {
+            main.style.setProperty('margin-left', '0', 'important');
+            main.style.setProperty('width', '100%', 'important');
+            console.log('[INLINE] Mobile layout');
+        } else if (saved) {
             sidebar.classList.add('collapsed');
             main.style.setProperty('margin-left', '70px', 'important');
             main.style.setProperty('width', 'calc(100% - 70px)', 'important');

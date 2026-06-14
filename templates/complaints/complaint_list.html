@@ -121,34 +121,36 @@ View and manage all your submitted complaints
         </form>
 
         {% if complaints %}
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Title</th>
-                    <th>Status</th>
-                    <th>Submitted</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for complaint in complaints %}
-                <tr>
-                    <td><strong>#{{ complaint.id }}</strong></td>
-                    <td>{{ complaint.title }}</td>
-                    <td>
-                        <span class="badge badge-{% if complaint.status == 'Pending' %}pending{% elif complaint.status == 'In Progress' %}progress{% elif complaint.status == 'Resolved' %}resolved{% else %}rejected{% endif %}">
-                            {{ complaint.status }}
-                        </span>
-                    </td>
-                    <td>{{ complaint.created_at|date:"M d, Y" }}</td>
-                    <td>
-                        <a href="/complaint-detail/{{ complaint.id }}/" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">View</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Submitted</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for complaint in complaints %}
+                    <tr>
+                        <td><strong>#{{ complaint.id }}</strong></td>
+                        <td>{{ complaint.title }}</td>
+                        <td>
+                            <span class="badge badge-{% if complaint.status == 'Pending' %}pending{% elif complaint.status == 'In Progress' %}progress{% elif complaint.status == 'Resolved' %}resolved{% else %}rejected{% endif %}">
+                                {{ complaint.status }}
+                            </span>
+                        </td>
+                        <td>{{ complaint.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="/complaint-detail/{{ complaint.id }}/" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;">View</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% else %}
         <div style="text-align: center; padding: 40px; color: #666;">
             <h3>No Complaints Found</h3>
