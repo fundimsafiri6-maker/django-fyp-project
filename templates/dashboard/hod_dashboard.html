@@ -154,9 +154,9 @@ Handle department-level complaints and leadership issues | View analytics and ma
     <div class="section-header">
         <h2><i class="fas fa-file-alt"></i> Reports</h2>
         <div class="section-header-actions" style="display: flex; justify-content: center; align-items: center;">
-            <button onclick="downloadReport('summary')" class="btn btn-primary">
-                <i class="fas fa-download"></i> Download Summary
-            </button>
+            <a href="{% url 'report_page' %}?format=pdf" class="btn btn-primary">
+                <i class="fas fa-download"></i> Download PDF Report
+            </a>
         </div>
     </div>
     
@@ -164,134 +164,28 @@ Handle department-level complaints and leadership issues | View analytics and ma
         <div class="report-card" style="background: #f8f9fa; padding: 25px; border-radius: 8px; min-width: 220px; flex: 1; text-align: center;">
             <h3><i class="fas fa-calendar"></i> Monthly Report</h3>
             <p>{{ total_complaints }} HOD complaints</p>
-            <button onclick="downloadReport('monthly')" class="btn btn-primary" style="margin-top: 10px;">
-                <i class="fas fa-download"></i> Download
-            </button>
+            <a href="{% url 'report_page' %}?format=pdf" class="btn btn-primary" style="margin-top: 10px; display: inline-block;">
+                <i class="fas fa-download"></i> PDF
+            </a>
         </div>
         
         <div class="report-card" style="background: #f8f9fa; padding: 25px; border-radius: 8px; min-width: 220px; flex: 1; text-align: center;">
             <h3><i class="fas fa-chart-line"></i> Annual Report</h3>
             <p>{{ total_complaints }} HOD complaints</p>
-            <button onclick="downloadReport('annual')" class="btn btn-primary" style="margin-top: 10px;">
-                <i class="fas fa-download"></i> Download
-            </button>
+            <a href="{% url 'report_page' %}?format=pdf" class="btn btn-primary" style="margin-top: 10px; display: inline-block;">
+                <i class="fas fa-download"></i> PDF
+            </a>
         </div>
         
         <div class="report-card" style="background: #f8f9fa; padding: 25px; border-radius: 8px; min-width: 220px; flex: 1; text-align: center;">
             <h3><i class="fas fa-chart-pie"></i> Category</h3>
             <p>View breakdown</p>
-            <button onclick="downloadReport('category')" class="btn btn-primary" style="margin-top: 10px;">
-                <i class="fas fa-download"></i> Download
-            </button>
+            <a href="{% url 'report_page' %}?format=pdf" class="btn btn-primary" style="margin-top: 10px; display: inline-block;">
+                <i class="fas fa-download"></i> PDF
+            </a>
         </div>
     </div>
 </div>
-
-<script>
-// Get data from page
-var reportData = {
-    total: {{ total_complaints|default:0 }},
-    pending: {{ pending|default:0 }},
-    in_progress: {{ in_progress|default:0 }},
-    resolved: {{ resolved|default:0 }},
-    rejected: {{ rejected|default:0 }}
-};
-
-function downloadReport(type) {
-    const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    const timestamp = new Date().toISOString().split('T')[0];
-    let reportContent = '';
-    let filename = '';
-    
-    var pendingPct = reportData.total > 0 ? Math.round((reportData.pending / reportData.total) * 100) : 0;
-    var progressPct = reportData.total > 0 ? Math.round((reportData.in_progress / reportData.total) * 100) : 0;
-    var resolvedPct = reportData.total > 0 ? Math.round((reportData.resolved / reportData.total) * 100) : 0;
-    var rejectedPct = reportData.total > 0 ? Math.round((reportData.rejected / reportData.total) * 100) : 0;
-    var resolutionRate = reportData.total > 0 ? ((reportData.resolved / reportData.total) * 100).toFixed(1) : 0;
-    
-    if (type === 'summary') {
-        filename = 'hod_complaint_summary_report_' + timestamp + '.txt';
-        reportContent = 
-'===========================================\n' +
-'HOD COMPLAINT SUMMARY REPORT\n' +
-'===========================================\n\n' +
-'Generated: ' + date + '\n\n' +
-'-------------------------------------------\n' +
-'OVERVIEW STATISTICS\n' +
-'-------------------------------------------\n' +
-'Total HOD Complaints: ' + reportData.total + '\n' +
-'Pending: ' + reportData.pending + ' (' + pendingPct + '%)\n' +
-'In Progress: ' + reportData.in_progress + ' (' + progressPct + '%)\n' +
-'Resolved: ' + reportData.resolved + ' (' + resolvedPct + '%)\n' +
-'Rejected: ' + reportData.rejected + ' (' + rejectedPct + '%)\n' +
-'\n===========================================\n' +
-'AI Complaints System - UDOM CIVE\n' +
-'===========================================';
-    } else if (type === 'monthly') {
-        filename = 'hod_monthly_report_' + timestamp + '.txt';
-        reportContent = 
-'===========================================\n' +
-'HOD MONTHLY COMPLAINT REPORT\n' +
-'===========================================\n\n' +
-'Generated: ' + date + '\n' +
-'Period: February 2026\n\n' +
-'-------------------------------------------\n' +
-'STATUS BREAKDOWN\n' +
-'-------------------------------------------\n' +
-'Total HOD Complaints: ' + reportData.total + '\n' +
-'Pending: ' + reportData.pending + '\n' +
-'In Progress: ' + reportData.in_progress + '\n' +
-'Resolved: ' + reportData.resolved + '\n' +
-'Rejected: ' + reportData.rejected + '\n' +
-'\n===========================================\n' +
-'AI Complaints System - UDOM CIVE\n' +
-'===========================================';
-    } else if (type === 'annual') {
-        filename = 'hod_annual_report_' + timestamp + '.txt';
-        reportContent = 
-'===========================================\n' +
-'HOD ANNUAL COMPLAINT REPORT\n' +
-'===========================================\n\n' +
-'Generated: ' + date + '\n' +
-'Period: January - December 2026\n\n' +
-'-------------------------------------------\n' +
-'YEARLY SUMMARY\n' +
-'-------------------------------------------\n' +
-'Total HOD Complaints: ' + reportData.total + '\n' +
-'Resolved: ' + reportData.resolved + '\n' +
-'Resolution Rate: ' + resolutionRate + '%\n' +
-'\n===========================================\n' +
-'AI Complaints System - UDOM CIVE\n' +
-'===========================================';
-    } else if (type === 'category') {
-        filename = 'hod_category_report_' + timestamp + '.txt';
-        reportContent = 
-'===========================================\n' +
-'HOD CATEGORY SUMMARY REPORT\n' +
-'===========================================\n\n' +
-'Generated: ' + date + '\n\n' +
-'-------------------------------------------\n' +
-'HOD COMPLAINTS BY CATEGORY\n' +
-'-------------------------------------------\n' +
-'Department Leadership: ' + reportData.total + ' complaints\n' +
-'Faculty Issues: --\n' +
-'Management: --\n' +
-'Coordination: --\n' +
-'\n===========================================\n' +
-'AI Complaints System - UDOM CIVE\n' +
-'===========================================';
-    }
-    
-    const blob = new Blob([reportContent], { type: 'text/plain' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    link.click();
-    URL.revokeObjectURL(link.href);
-    
-    alert('HOD Report downloaded as text file!');
-}
-                      </script>
 {% endblock %}
 
 {% block extra_css %}

@@ -502,44 +502,9 @@ function toggleFAQ(element) {
     answer.classList.toggle('show');
 }
 
-// Chatbot FAQ Database
-const chatbotFAQ = [
-    {
-        keywords: ['submit', 'complaint', 'how', 'create', 'file', 'report'],
-        answer: 'To submit a complaint, navigate to the "Submit Complaint" section from your dashboard. Fill in the title and detailed description of your complaint, then click "Submit". Your complaint will be reviewed and assigned to the appropriate staff member for handling.'
-    },
-    {
-        keywords: ['resolve', 'time', 'how', 'long', 'days', 'duration'],
-        answer: 'Resolution time varies depending on the complexity of your complaint. Most complaints are addressed within 5-7 working days. You can track the status of your complaint in real-time through your dashboard.'
-    },
-    {
-        keywords: ['edit', 'change', 'modify', 'after', 'submission', 'update'],
-        answer: 'Once a complaint is submitted, you cannot edit it directly. However, you can provide additional information by contacting the assigned staff member through the complaint detail page or using the support system.'
-    },
-    {
-        keywords: ['ai', 'classification', 'categorize', 'automatic', 'category'],
-        answer: 'Our AI system categorizes complaints automatically based on keywords and context. This helps route your complaint to the correct department quickly. The AI also analyzes sentiment to identify urgent issues that need immediate attention.'
-    },
-    {
-        keywords: ['confidential', 'private', 'privacy', 'secure', 'safe', 'confidentiality'],
-        answer: 'Yes, all complaints are treated with confidentiality. Only authorized staff members have access to your complaint details. Your privacy is protected at all times in accordance with our data protection policies.'
-    },
-    {
-        keywords: ['track', 'status', 'monitor', 'view', 'where', 'progress'],
-        answer: 'You can track your complaint status in the "My Complaints" section of your dashboard. Click on any complaint to see detailed updates about its progress and current status.'
-    },
-    {
-        keywords: ['contact', 'support', 'help', 'phone', 'email', 'reach'],
-        answer: 'You can reach our support team via:\n📧 Email: support@udom-cive.edu\n📞 Phone: +255 700 000 000\n⏰ Office Hours: Mon-Fri, 8:00 AM - 5:00 PM'
-    },
-    {
-        keywords: ['dashboard', 'home', 'access', 'login', 'start', 'begin'],
-        answer: 'Once you log in, you\'ll see your personalized dashboard. From there, you can access all complaint-related features including submitting new complaints, viewing your existing complaints, and tracking their status.'
-    }
-];
-
 // Message history
 let messageHistory = [];
+const MAX_HISTORY = 20;
 
 // Load previous messages from localStorage
 function loadChatHistory() {
@@ -551,13 +516,26 @@ function loadChatHistory() {
         messageHistory.forEach(msg => {
             addMessageToUI(msg.text, msg.type);
         });
-        showSuggestedQuestions();
     }
 }
 
 // Save messages to localStorage
 function saveChatHistory() {
     localStorage.setItem('chatbotMessages', JSON.stringify(messageHistory));
+}
+
+// Convert markdown-style text to HTML
+function formatMessage(text) {
+    // Bold
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // Italic
+    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    // Line breaks
+    text = text.replace(/\n/g, '<br>');
+    // Bullet points
+    text = text.replace(/•/g, '&bull;');
+    // Emoji-safe
+    return text;
 }
 
 // Add message to UI
@@ -568,7 +546,7 @@ function addMessageToUI(text, type = 'bot') {
     
     const contentEl = document.createElement('div');
     contentEl.className = 'message-content';
-    contentEl.innerHTML = text;
+    contentEl.innerHTML = formatMessage(text);
     
     messageEl.appendChild(contentEl);
     messagesDiv.appendChild(messageEl);
@@ -594,80 +572,37 @@ function removeTypingIndicator() {
     if (typing) typing.remove();
 }
 
-// Find answer to user question (from FAQ database first)
-function findAnswer(question) {
-    const lowerQuestion = question.toLowerCase();
-    let bestMatch = null;
-    let maxMatches = 0;
-    
-    chatbotFAQ.forEach(faq => {
-        let matches = 0;
-        faq.keywords.forEach(keyword => {
-            if (lowerQuestion.includes(keyword)) matches++;
+// Build conversation history for API
+function buildHistory() {
+    const history = [];
+    const msgs = messageHistory.slice(-MAX_HISTORY);
+    for (const msg of msgs) {
+        const role = msg.type === 'user' ? 'user' : 'model';
+        history.push({
+            role: role,
+            parts: [{ text: msg.text.replace(/<[^>]*>/g, '') }]
         });
-        
-        if (matches > maxMatches) {
-            maxMatches = matches;
-            bestMatch = faq.answer;
-        }
-    });
-    
-    // Return match info (null if no strong match found)
-    return {
-        answer: bestMatch,
-        confidence: maxMatches,
-        found: bestMatch !== null && maxMatches > 0
-    };
-}
-
-// Perform Google search via backend API
-async function performGoogleSearch(question) {
-    try {
-        const response = await fetch('/accounts/api/chatbot-search/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
-            },
-            body: JSON.stringify({ query: question })
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            let answer = data.answer;
-            
-            // Add sources if available
-            if (data.sources && data.sources.length > 0) {
-                answer += '\n\n<i class="fas fa-book"></i> Sources:\n';
-                data.sources.forEach((source, index) => {
-                    answer += `${index + 1}. ${source.title}\n`;
-                });
-            }
-            
-            return {
-                answer: answer,
-                found: true,
-                from_search: true
-            };
-        } else {
-            return {
-                answer: data.answer,
-                found: false,
-                from_search: true
-            };
-        }
-    } catch (error) {
-        console.error('Search error:', error);
-        return {
-            answer: 'Sorry, I encountered an error while searching. Please try again or contact support.',
-            found: false,
-            from_search: false
-        };
     }
+    return history;
 }
 
-// Send chat message with FAQ and Google search
+// Send message to Gemini API
+async function sendToAPI(message) {
+    const response = await fetch('/accounts/api/chatbot-search/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+        },
+        body: JSON.stringify({
+            query: message,
+            history: buildHistory()
+        })
+    });
+    return await response.json();
+}
+
+// Send chat message using Gemini AI
 async function sendChatMessage() {
     const input = document.getElementById('chatbot-input');
     const message = input.value.trim();
@@ -683,50 +618,34 @@ async function sendChatMessage() {
     // Show typing indicator
     showTypingIndicator();
     
-    // First, try to find answer in FAQ
-    const faqResult = findAnswer(message);
-    
-    let answer, responseMessage;
-    
-    if (faqResult.found) {
-        // FAQ match found - use it
-        responseMessage = faqResult.answer;
-        answer = '✓ ' + responseMessage;
+    try {
+        const data = await sendToAPI(message);
         
-        setTimeout(() => {
-            removeTypingIndicator();
-            addMessageToUI(answer, 'bot');
-            messageHistory.push({ text: answer, type: 'bot' });
-            saveChatHistory();
-        }, 600);
-    } else {
-        // No FAQ match - perform Google search
-        try {
-            const searchResult = await performGoogleSearch(message);
-            
-            if (searchResult.from_search) {
-                responseMessage = searchResult.answer;
-            } else {
-                responseMessage = 'Unable to find specific information. Please try another search or contact support.';
+        removeTypingIndicator();
+        
+        if (data.success) {
+            let answer = data.answer;
+            if (data.from_gemini) {
+                answer = '<i class="fas fa-robot"></i> ' + answer;
             }
-            
-            answer = '<i class="fas fa-magnifying-glass"></i> Search Result:\n' + responseMessage;
-            
-            removeTypingIndicator();
             addMessageToUI(answer, 'bot');
             messageHistory.push({ text: answer, type: 'bot' });
-            saveChatHistory();
-        } catch (error) {
-            console.error('Error:', error);
-            removeTypingIndicator();
-            const errorMsg = 'Sorry, I encountered an error. Please try again.';
+        } else {
+            const errorMsg = data.answer || 'Sorry, I encountered an error. Please try again.';
             addMessageToUI(errorMsg, 'bot');
             messageHistory.push({ text: errorMsg, type: 'bot' });
-            saveChatHistory();
         }
+        
+        saveChatHistory();
+        
+    } catch (error) {
+        console.error('Error:', error);
+        removeTypingIndicator();
+        const errorMsg = 'Sorry, I encountered an error. Please try again or contact support.';
+        addMessageToUI(errorMsg, 'bot');
+        messageHistory.push({ text: errorMsg, type: 'bot' });
+        saveChatHistory();
     }
-    
-    showSuggestedQuestions();
 }
 
 // Handle enter key
@@ -736,20 +655,57 @@ function handleChatInput(event) {
     }
 }
 
-// Show suggested questions
+// Suggested questions
+const suggestedQuestions = [
+    "How do I submit a complaint?",
+    "The campus WiFi is not working",
+    "How to reset portal password?",
+    "Course registration steps",
+    "Contact ICT support"
+];
+
 function showSuggestedQuestions() {
-    // Optional: Add suggested questions at certain points
+    const messagesDiv = document.getElementById('chatbot-messages');
+    const container = document.createElement('div');
+    container.className = 'message bot';
+    container.id = 'suggested-qs';
+    let html = '<div class="message-content"><div class="suggested-questions">';
+    suggestedQuestions.forEach(q => {
+        html += `<button class="suggested-btn" onclick="useSuggested('${q}')">${q}</button>`;
+    });
+    html += '</div></div>';
+    container.innerHTML = html;
+    messagesDiv.appendChild(container);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function useSuggested(question) {
+    document.getElementById('chatbot-input').value = question;
+    const suggested = document.getElementById('suggested-qs');
+    if (suggested) suggested.remove();
+    sendChatMessage();
 }
 
 // Minimize chatbot (optional)
 function minimizeChatbot() {
-    alert('Minimize feature - you can refresh to continue the chat later!');
+    const widget = document.querySelector('.chatbot-widget');
+    const msgs = document.getElementById('chatbot-messages');
+    const input = document.querySelector('.chatbot-input-area');
+    if (widget.classList.toggle('minimized')) {
+        msgs.style.display = 'none';
+        input.style.display = 'none';
+    } else {
+        msgs.style.display = 'flex';
+        input.style.display = 'flex';
+    }
 }
 
 // Initialize chatbot on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadChatHistory();
-    showSuggestedQuestions();
+    if (messageHistory.length === 0) {
+        showSuggestedQuestions();
+    }
 });
 </script>
 {% endblock %}

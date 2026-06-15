@@ -1006,38 +1006,34 @@ def resend_verification_email(request):
 @login_required(login_url='login')
 def chatbot_search(request):
     """
-    API endpoint for chatbot to search Google and return relevant information
-    Performs web search using requests library and BeautifulSoup
+    API endpoint for chatbot to answer questions using Gemini AI
+    Provides helpful responses about UDOM CIVE ICT and Academic issues
     """
     try:
         data = json.loads(request.body)
         query = data.get('query', '').strip()
+        history = data.get('history', [])
         
         if not query or len(query) < 3:
             return JsonResponse({
                 'success': False,
-                'answer': 'Please provide a longer search query (at least 3 characters).'
+                'answer': 'Please provide a longer query (at least 3 characters).'
             })
         
-        # Search Google with UDOM priority
-        search_results = perform_google_search(query)
+        from .chatbot_service import get_chat_response
+        result = get_chat_response(query, conversation_history=history)
         
-        if search_results:
-            return JsonResponse({
-                'success': True,
-                'answer': search_results['answer'],
-                'sources': search_results['sources']
-            })
-        else:
-            return JsonResponse({
-                'success': True,
-                'answer': f'I could not find specific information about "{query}". Please try contacting support or refining your search.'
-            })
+        return JsonResponse({
+            'success': True,
+            'answer': result['answer'],
+            'sources': result.get('sources', []),
+            'from_gemini': result.get('from_gemini', False),
+        })
             
     except Exception as e:
         return JsonResponse({
             'success': False,
-            'answer': f'Error performing search: {str(e)}. Please try again or contact support.'
+            'answer': f'I encountered an error. Please try again or contact support.\n\nError: {str(e)}'
         })
 
 

@@ -77,7 +77,7 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     position: sticky;
     top: 0;
-    z-index: 50;
+    z-index: 100; /* Ensure it is above the sidebar */
     height: 70px;
 }
 
@@ -191,8 +191,8 @@ body {
     left: 0;
     top: 70px;
     overflow-y: auto;
-    overflow-x: visible;
-    transition: width 0.4s ease;
+    overflow-x: hidden;
+    transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     border-right: 1px solid #e5e7eb;
     box-shadow: 2px 0 8px rgba(0,0,0,0.08);
     z-index: 99;
@@ -223,6 +223,7 @@ body {
 .nav-section {
     padding: 15px 0;
     border-bottom: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
 }
 
 .nav-section-title {
@@ -232,13 +233,14 @@ body {
     color: #999;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    transition: opacity 0.3s ease-in-out;
+    transition: opacity 0.3s ease-in-out, padding 0.3s ease-in-out;
 }
 
 .sidebar.collapsed .nav-section-title {
     opacity: 0;
     visibility: hidden;
     padding: 0;
+    height: 0;
 }
 
 .nav-item {
@@ -271,11 +273,14 @@ body {
     text-align: center;
     margin-right: 10px;
     flex-shrink: 0;
+    transition: all 0.2s ease;
 }
 
 .nav-item span {
     white-space: nowrap;
-    transition: opacity 0.3s ease-in-out;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: opacity 0.3s ease-in-out, width 0.3s ease-in-out;
 }
 
 .sidebar.collapsed .nav-item span {
@@ -292,27 +297,35 @@ body {
 }
 
 .sidebar.collapsed .nav-item:hover {
-    background: rgba(30, 58, 138, 0.1);
+    background: rgba(30, 58, 138, 0.15);
 }
 
 .sidebar.collapsed .nav-item.active {
     border-right: none;
     border-bottom: 3px solid #1e3a8a;
+    padding-bottom: 9px;
 }
 
 /* MAIN CONTENT */
 .main-content {
     margin-left: 280px;
-    margin-top: 0;
+    margin-top: 70px;
     padding: 30px;
-    transition: margin-left 0.4s ease;
+    transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1), width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     min-height: calc(100vh - 70px);
     flex: 1;
     will-change: margin-left;
+    position: relative;
+    z-index: 1;
+    overflow-x: auto;
+    width: calc(100% - 280px);
+    box-sizing: border-box;
 }
 
+/* When sidebar is collapsed - NO GAP on right */
 .sidebar.collapsed ~ .main-content {
     margin-left: 70px;
+    width: calc(100% - 70px);
 }
 
 /* DASHBOARD CARDS */
@@ -401,6 +414,7 @@ body {
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     overflow: hidden;
+    overflow-x: auto;
 }
 
 .section-header {
@@ -461,6 +475,7 @@ body {
 
 .section-content {
     padding: 25px;
+    overflow-x: auto;
 }
 
 /* TABLE */
@@ -539,36 +554,346 @@ tbody tr:hover {
     margin: 0;
 }
 
-/* RESPONSIVE */
-@media (max-width: 768px) {
-    .dashboard-header {
-        flex-direction: column;
+/* SIDEBAR OVERLAY (mobile) */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 98;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+}
+
+/* RESPONSIVE - TABLET & BELOW */
+@media (max-width: 1024px) {
+    .header-title h1 {
+        font-size: 20px;
+    }
+
+    .header-title p {
+        display: none;
+    }
+
+    .user-details p {
+        font-size: 12px;
+    }
+
+    .user-role {
+        display: none;
+    }
+
+    .dashboard-cards {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 15px;
     }
 
+    .section-header {
+        padding: 20px;
+    }
+
+    .section-content {
+        padding: 20px;
+    }
+}
+
+/* RESPONSIVE - MOBILE */
+@media (max-width: 768px) {
+    body.sidebar-open {
+        overflow: hidden;
+    }
+
+    .sidebar-overlay {
+        display: block;
+        pointer-events: none;
+    }
+
+    .sidebar-overlay.active {
+        pointer-events: auto;
+    }
+
+    .dashboard-header {
+        padding: 12px 15px;
+        height: 56px;
+    }
+
+    .header-left {
+        gap: 10px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .header-title h1 {
+        font-size: 16px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .header-title p {
+        display: none;
+    }
+
+    .header-right {
+        gap: 8px;
+    }
+
+    .user-info {
+        padding-right: 8px;
+        gap: 8px;
+    }
+
+    .avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+
+    .user-details p {
+        font-size: 11px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 80px;
+    }
+
+    .user-role {
+        display: none;
+    }
+
+    .header-actions .logout-btn span {
+        display: none;
+    }
+
+    .logout-btn {
+        padding: 8px 10px;
+    }
+
+    /* Sidebar: off-screen by default, slides in as overlay */
     .sidebar {
         width: 280px;
-        position: fixed;
+        left: -280px;
+        top: 56px;
+        height: calc(100vh - 56px);
+        transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 99;
+        box-shadow: 4px 0 16px rgba(0,0,0,0.2);
+    }
+
+    .sidebar.open {
         left: 0;
-        top: 70px;
     }
 
     .sidebar.collapsed {
-        width: 70px;
+        width: 280px;
+    }
+
+    .sidebar.collapsed.open {
+        left: 0;
+    }
+
+    .sidebar.collapsed .nav-item {
+        justify-content: flex-start;
+        padding: 12px 15px;
+        margin: 3px 8px;
+    }
+
+    .sidebar.collapsed .nav-item span {
+        opacity: 1;
+        visibility: visible;
+        width: auto;
+        margin: 0;
+    }
+
+    .sidebar.collapsed .nav-section-title {
+        opacity: 1;
+        visibility: visible;
+        padding: 8px 15px;
+        height: auto;
+    }
+
+    .sidebar.collapsed .nav-item.active {
+        border-right: 3px solid #1e3a8a;
+        border-bottom: none;
     }
 
     .main-content {
-        margin-left: 280px;
-        padding: 20px 15px;
-    }
-
-    .sidebar.collapsed ~ .main-content {
-        margin-left: 70px;
+        margin-left: 0 !important;
+        margin-top: 56px;
+        padding: 15px;
+        width: 100% !important;
+        overflow-x: auto;
     }
 
     .dashboard-cards {
         grid-template-columns: 1fr;
-        gap: 15px;
+        gap: 12px;
+    }
+
+    .card {
+        padding: 18px;
+    }
+
+    .card-number {
+        font-size: 26px;
+    }
+
+    .card-icon {
+        font-size: 30px;
+        width: 42px;
+        height: 42px;
+    }
+
+    .section-header {
+        padding: 18px 15px;
+    }
+
+    .section-header h2 {
+        font-size: 16px;
+    }
+
+    .section-header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .section-header-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .section-content {
+        padding: 15px;
+        overflow-x: auto;
+    }
+
+    /* Table responsive: horizontal scroll on small screens */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    table {
+        min-width: 600px;
+    }
+
+    thead th,
+    tbody td {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .filter-box {
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    .filter-box input[type="search"] {
+        min-width: 100%;
+    }
+
+    .filter-box select {
+        min-width: 100%;
+    }
+
+    .filter-btn, .filter-btn-reset {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .content-section {
+        border-radius: 8px;
+    }
+
+    .status-bar {
+        height: 32px;
+    }
+
+    .status-item {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-header {
+        padding: 10px 12px;
+        height: 50px;
+    }
+
+    .sidebar {
+        top: 50px;
+        height: calc(100vh - 50px);
+        width: 260px;
+        left: -260px;
+    }
+
+    .sidebar.open {
+        left: 0;
+    }
+
+    .main-content {
+        margin-top: 50px;
+        padding: 12px;
+    }
+
+    .header-title h1 {
+        font-size: 14px;
+    }
+
+    .user-details p {
+        max-width: 60px;
+        font-size: 10px;
+    }
+
+    .avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+    }
+
+    .menu-toggle {
+        font-size: 22px;
+        padding: 6px 10px;
+    }
+
+    .card {
+        padding: 14px;
+    }
+
+    .card h4 {
+        font-size: 10px;
+    }
+
+    .card-number {
+        font-size: 22px;
+    }
+
+    .dashboard-cards {
+        gap: 10px;
+    }
+
+    .section-content {
+        padding: 12px;
+    }
+
+    .section-header {
+        padding: 14px 12px;
+    }
+
+    .section-header h2 {
+        font-size: 14px;
+    }
+
+    .btn {
+        padding: 8px 14px;
+        font-size: 12px;
     }
 }
 

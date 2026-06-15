@@ -1,53 +1,124 @@
-// Dashboard JavaScript Functions
+// ============================================
+// SIDEBAR TOGGLE - BULLETPROOF VERSION
+// ============================================
 
-// Toggle Sidebar
-function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    
-    if (!sidebar) {
-        console.warn('Sidebar element not found. Looking for element with id="sidebar"');
-        return;
-    }
-    
-    // Toggle the collapsed class
-    const isCollapsed = sidebar.classList.toggle('collapsed');
-    
-    // Save state to localStorage
-    localStorage.setItem('sidebarCollapsed', isCollapsed.toString());
-    
-    // Debug info
-    console.log('Sidebar toggled. Collapsed:', isCollapsed);
-    console.log('Sidebar classes:', sidebar.className);
+let sidebarState = null; // null = not initialized
+
+function initializeSidebarState() {
+    // Get saved state from localStorage
+    const saved = localStorage.getItem('sidebarCollapsed');
+    sidebarState = saved === 'true' ? true : false;
+    console.log('[INIT] Sidebar state initialized:', sidebarState);
+    applySidebarState();
 }
 
-// Load sidebar collapsed state
-document.addEventListener('DOMContentLoaded', function() {
+function applySidebarState() {
     const sidebar = document.getElementById('sidebar');
-    if (!sidebar) {
-        console.warn('Sidebar element not found during DOMContentLoaded');
+    const mainContent = document.querySelector('.main-content');
+    
+    if (!sidebar || !mainContent) {
+        console.error('[APPLY] ERROR: Elements missing');
+        return;
+    }
+
+    // On mobile, sidebar is an overlay - don't adjust main content margins
+    if (isMobile()) {
+        mainContent.style.setProperty('margin-left', '0', 'important');
+        mainContent.style.setProperty('width', '100%', 'important');
         return;
     }
     
-    const savedState = localStorage.getItem('sidebarCollapsed');
-    const isCollapsed = savedState === 'true';
-    
-    if (isCollapsed) {
+    if (sidebarState === true) {
+        // COLLAPSED STATE - NO GAP ON RIGHT
         sidebar.classList.add('collapsed');
-        console.log('Sidebar restored from localStorage as collapsed');
+        mainContent.style.setProperty('margin-left', '70px', 'important');
+        mainContent.style.setProperty('width', 'calc(100% - 70px)', 'important');
+        console.log('[APPLY] Applied COLLAPSED state');
     } else {
+        // EXPANDED STATE
         sidebar.classList.remove('collapsed');
-        console.log('Sidebar restored from localStorage as expanded');
+        mainContent.style.setProperty('margin-left', '280px', 'important');
+        mainContent.style.setProperty('width', 'calc(100% - 280px)', 'important');
+        console.log('[APPLY] Applied EXPANDED state');
     }
+}
 
-    // Set active nav item
+function isMobile() {
+    return window.innerWidth <= 768;
+}
+
+function toggleSidebar() {
+    console.log('=== TOGGLE CALLED ===');
+    
+    if (isMobile()) {
+        // Mobile: open/close sidebar as overlay
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        if (!sidebar) return;
+        
+        const isOpen = sidebar.classList.contains('open');
+        if (isOpen) {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.classList.remove('sidebar-open');
+        } else {
+            sidebar.classList.add('open');
+            overlay.classList.add('active');
+            document.body.classList.add('sidebar-open');
+        }
+        console.log('Mobile toggle:', isOpen ? 'closed' : 'opened');
+        return;
+    }
+    
+    // Desktop: toggle collapsed state
+    console.log('Current state:', sidebarState);
+    sidebarState = !sidebarState;
+    console.log('New state:', sidebarState);
+    
+    localStorage.setItem('sidebarCollapsed', sidebarState.toString());
+    console.log('Saved to localStorage');
+    
+    applySidebarState();
+    console.log('=== TOGGLE COMPLETE ===');
+}
+
+function closeSidebar() {
+    if (!isMobile()) return;
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('active');
+    document.body.classList.remove('sidebar-open');
+}
+
+// Early initialization - as soon as script loads
+console.log('[EARLY-INIT] Script loaded');
+if (document.readyState === 'loading') {
+    // DOM is still loading
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('[DOMContentLoaded] Initializing sidebar');
+        initializeSidebarState();
+        setActiveNavItem();
+    });
+} else {
+    // DOM is already loaded
+    console.log('[READY] DOM already loaded, initializing now');
+    initializeSidebarState();
+    setActiveNavItem();
+}
+
+function setActiveNavItem() {
     const currentPath = window.location.pathname;
+    console.log('[NAV] Current path:', currentPath);
+    
     document.querySelectorAll('.nav-item').forEach(item => {
-        item.classList.remove('active');
-        if (item.getAttribute('href') === currentPath) {
+        const href = item.getAttribute('href');
+        if (href === currentPath) {
             item.classList.add('active');
+            console.log('[NAV] Set active:', href);
         }
     });
-});
+}
 
 // Show custom notification (for AJAX responses)
 function showNotification(message, type = 'success') {
@@ -131,50 +202,6 @@ function updateComplaintStatus(complaintId) {
         console.error('Error:', error);
         showNotification('An error occurred', 'error');
     });
-}
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    
-    const style = document.createElement('style');
-    style.textContent = `
-        .notification {
-            position: fixed;
-            top: 90px;
-            right: 20px;
-            padding: 15px 20px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 500;
-            z-index: 1000;
-            animation: slideInRight 0.3s ease;
-        }
-        .notification-success {
-            background: #10b981;
-        }
-        .notification-error {
-            background: #ef4444;
-        }
-        .notification-info {
-            background: #3b82f6;
-        }
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(100px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-    `;
-    document.head.appendChild(style);
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.style.animation = 'slideInRight 0.3s ease reverse';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
 }
 
 // Filter table rows
