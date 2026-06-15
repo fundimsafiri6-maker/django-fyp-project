@@ -41,7 +41,7 @@
         }
 
         .login-image-section {
-            flex: 0 0 30%;
+            flex: 0 0 240px;
             background: linear-gradient(135deg, #5858bc 0%, #1e3a8a 100%);
             display: flex;
             justify-content: center;
@@ -50,17 +50,17 @@
             min-height: 400px;
         }
 
-        .login-image-section img {
+        .login-image-section svg {
             max-width: 100%;
-            max-height: 350px;
-            object-fit: contain;
+            height: auto;
         }
 
         .login-form-section {
-            flex: 0 0 70%;
+            flex: 1 1 0;
             display: flex;
             flex-direction: column;
             border-radius: 0 12px 12px 0;
+            min-width: 0;
             box-sizing: border-box;
         }
 
@@ -103,15 +103,17 @@
         }
 
         .login-body {
-            padding: 30px 40px;
+            padding: 24px 32px;
             flex: 1;
             display: flex;
             flex-direction: column;
+            min-width: 0;
             box-sizing: border-box;
         }
 
         .form-group {
             margin-bottom: 25px;
+            width: 100%;
         }
 
         .form-group label {
@@ -120,6 +122,8 @@
             font-weight: 600;
             color: #555;
             margin-bottom: 8px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .form-group input {
@@ -248,6 +252,8 @@
             border-top: none;
             color: #666;
             font-size: 13px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .login-footer a {
@@ -290,9 +296,17 @@
             color: white;
         }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+            .login-image-section {
+                flex: 0 0 200px;
+                min-height: 300px;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
             .main-content {
-                padding: 20px 15px;
+                padding: 16px 12px;
             }
 
             .login-container {
@@ -303,21 +317,22 @@
             }
 
             .login-image-section {
-                min-height: 180px;
-                padding: 20px;
+                flex: none;
+                min-height: 140px;
+                padding: 16px;
             }
 
             .login-image-section svg {
-                width: 180px;
-                height: 180px;
+                width: 140px;
+                height: auto;
             }
 
             .login-form-section {
-                flex: 0 0 auto;
+                flex: none;
             }
 
             .login-header {
-                padding: 25px 20px 20px;
+                padding: 24px 20px 20px;
             }
 
             .login-header h1 {
@@ -338,13 +353,13 @@
             }
 
             .form-group {
-                margin-bottom: 20px;
+                margin-bottom: 18px;
             }
         }
 
         @media (max-width: 480px) {
             .main-content {
-                padding: 10px;
+                padding: 8px;
             }
 
             .login-container {
@@ -353,15 +368,19 @@
             }
 
             .login-header {
-                padding: 18px 15px;
+                padding: 18px 14px 14px;
             }
 
             .login-header h1 {
-                font-size: 18px;
+                font-size: 17px;
+            }
+
+            .login-header p {
+                font-size: 12px;
             }
 
             .login-body {
-                padding: 15px;
+                padding: 12px 14px;
             }
 
             .login-image-section {
@@ -369,7 +388,7 @@
             }
 
             .form-group {
-                margin-bottom: 16px;
+                margin-bottom: 14px;
             }
 
             .form-group input {
@@ -417,7 +436,7 @@
             </div>
 
             <div class="login-body">
-                <form method="POST">
+                <form method="POST" style="width:100%;min-width:0;">
                     {% csrf_token %}
 
 <div class="form-group">
@@ -438,7 +457,7 @@
                          Sign in
                      </button>
 
-                    <div class="login-footer">
+                    <div class="login-footer" style="width:100%;">
                         Don't have an account? 
                         <a href="/accounts/register/">
                             <i class="fas fa-user-plus"></i> Register here
