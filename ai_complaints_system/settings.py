@@ -45,7 +45,11 @@ if not ALLOWED_HOSTS or ALLOWED_HOSTS == ['']:
 # CSRF and Session settings - dynamic for production
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
 if not CSRF_TRUSTED_ORIGINS or CSRF_TRUSTED_ORIGINS == ['']:
-    CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+    if DEBUG:
+        CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
+    else:
+        # In production, allow all HTTPS origins if not specified
+        CSRF_TRUSTED_ORIGINS = ['https://*']
 CSRF_COOKIE_NAME = 'csrftoken'
 CSRF_COOKIE_PATH = '/'
 CSRF_COOKIE_SAMESITE = 'Lax'
