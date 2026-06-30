@@ -162,9 +162,15 @@ def complaint_update(request, id):
                         messages.warning(request, 'Complaint updated but response could not be saved')
                         return redirect('complaint_detail', id=complaint.id)
                 
-                # Send email notification if complaint is resolved
-                if status == 'Resolved':
+                # Send email and SMS notification if complaint is resolved or rejected
+                if status in ('Resolved', 'Rejected'):
                     send_complaint_resolution_email(complaint, response_text)
+                    from .sms_service import send_complaint_status_sms, send_high_priority_bulk_sms
+                    try:
+                        send_complaint_status_sms(complaint)
+                        send_high_priority_bulk_sms(complaint)
+                    except Exception:
+                        pass
                 
                 messages.success(request, 'Complaint updated successfully!')
                 return redirect('complaint_detail', id=complaint.id)
@@ -282,7 +288,6 @@ def complaints_stats(request):
     high_priority = complaints_for_stats.filter(priority='High').count()
     medium_priority = complaints_for_stats.filter(priority='Medium').count()
     low_priority = complaints_for_stats.filter(priority='Low').count()
-    urgent_priority = complaints_for_stats.filter(priority='Urgent').count()
     
     context = {
         'total': total,
@@ -293,7 +298,6 @@ def complaints_stats(request):
         'high_priority': high_priority,
         'medium_priority': medium_priority,
         'low_priority': low_priority,
-        'urgent_priority': urgent_priority,
         'search_query': search_query,
         'status_filter': status_filter,
     }
@@ -331,9 +335,15 @@ def staff_respond(request, id):
                         messages.warning(request, 'Cannot reassign complaint - already assigned to another staff member.')
                     complaint.save()
                     
-                    # Send email notification if complaint is resolved
-                    if status == 'Resolved':
+                    # Send email and SMS notification if complaint is resolved or rejected
+                    if status in ('Resolved', 'Rejected'):
                         send_complaint_resolution_email(complaint, response_text)
+                        from .sms_service import send_complaint_status_sms, send_high_priority_bulk_sms
+                        try:
+                            send_complaint_status_sms(complaint)
+                            send_high_priority_bulk_sms(complaint)
+                        except Exception:
+                            pass
                 
                 messages.success(request, 'Response added successfully!')
                 return redirect('complaint_detail', id=complaint.id)

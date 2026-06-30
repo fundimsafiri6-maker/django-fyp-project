@@ -20,14 +20,7 @@ from .models import User, EmailVerificationToken
 from .decorators import admin_required, staff_or_admin_required
 from complaints.models import Complaint
 from django.views.decorators.csrf import csrf_exempt
-from reportlab.lib.pagesizes import letter
-from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.units import inch
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-from docx import Document
-from docx.shared import Inches, Pt
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+# reportlab and docx imported lazily inside view functions
 from io import BytesIO
 
 @csrf_exempt
@@ -54,9 +47,24 @@ def login_view(request):
         # Now authenticate the user with password check
         authenticated_user = authenticate(request, username=username, password=password)
         if authenticated_user is not None:
+            # Safety check: if role changed between User.get and auth (race condition guard)
+            if authenticated_user.id != user.id:
+                logger.warning(f"Role/ID mismatch: user.get id={user.id} vs authenticate id={authenticated_user.id}")
+            if authenticated_user.role != user.role:
+                logger.warning(f"Role mismatch: user.get role={user.role} vs authenticate role={authenticated_user.role} for user {user.id}")
+
             login(request, authenticated_user)
             full_name = authenticated_user.get_full_name() if authenticated_user.get_full_name() else authenticated_user.username
             messages.success(request, f"Welcome back, {full_name}!")
+            # Respect next parameter (e.g., from @login_required redirect)
+            next_url = request.GET.get('next') or request.POST.get('next')
+            if next_url:
+                # Safety: prevent non-admin users from being redirected to admin pages
+                if authenticated_user.role != 'admin' and next_url.startswith('/accounts/admin-'):
+                    logger.warning(f"Blocked redirect to admin page for non-admin user {authenticated_user.username}: {next_url}")
+                    next_url = None
+                else:
+                    return redirect(next_url)
             # Redirect based on user role
             if authenticated_user.role == 'admin':
                 return redirect('admin_dashboard')
@@ -76,7 +84,7 @@ def logout_view(request):
 
 # ================= DASHBOARDS =================
 
-@login_required(login_url='login')
+@admin_required
 def admin_dashboard(request):
     """Admin dashboard with system-wide statistics"""
     # Get all complaints
@@ -419,9 +427,18 @@ def assign_complaint(request):
 def statistics_page(request):
     return render(request, "dashboard/complaints_stats.html")
 
+@staff_or_admin_required
 def report_page(request):
     """Generate and display system report as PDF or Word document"""
     format_type = request.GET.get('format', 'pdf')  # Default to PDF
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from docx import Document
+    from docx.shared import Inches, Pt
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
     
     # Get complaint statistics
     all_complaints = Complaint.objects.all()
@@ -431,10 +448,10 @@ def report_page(request):
     resolved_complaints = all_complaints.filter(status='Resolved').count()
     rejected_complaints = all_complaints.filter(status='Rejected').count()
     
-    # Get top category
+    # Get top department
     from django.db.models import Count
-    category_stats = all_complaints.values('category').annotate(count=Count('id')).order_by('-count').first()
-    top_category = category_stats['category'] if category_stats else 'N/A'
+    dept_stats_for_top = all_complaints.values('department').annotate(count=Count('id')).order_by('-count').first()
+    top_category = dict(Complaint.DEPARTMENT_CHOICES).get(dept_stats_for_top['department'], 'N/A') if dept_stats_for_top else 'N/A'
     
     # Get most active department
     dept_stats = all_complaints.values('department').annotate(count=Count('id')).order_by('-count').first()
@@ -740,6 +757,7 @@ def register_view(request):
         # Get and validate input
         username = request.POST.get("username", "").strip()
         email = request.POST.get("email", "").strip().lower()  # Normalize email to lowercase
+        phone_number = request.POST.get("phone_number", "").strip()
         password = request.POST.get("password", "").strip()
         password_confirm = request.POST.get("password_confirm", "").strip()
         role = "student"  # Default role for security
@@ -767,6 +785,14 @@ def register_view(request):
         elif User.objects.filter(email__iexact=email).exists():  # Case-insensitive check
             errors.append("Email already registered")
         
+        # Phone number validation
+        if not phone_number:
+            errors.append("Phone number is required")
+        elif not re.match(r'^\+?255\d{9}$', phone_number):
+            errors.append("Phone number must be a valid Tanzanian number (e.g. 2557XXXXXXXX or +2557XXXXXXXX)")
+        elif User.objects.filter(phone_number=phone_number).exists():
+            errors.append("Phone number already registered")
+        
         # Password validation
         if not password:
             errors.append("Password is required")
@@ -791,6 +817,7 @@ def register_view(request):
                 'error_list': errors,
                 'username': username,
                 'email': email,
+                'phone_number': phone_number,
                 'registration_number': registration_number,
             }
             return render(request, "accounts/register.html", context)
@@ -803,6 +830,7 @@ def register_view(request):
                     email=email,
                     password=password,
                     role=role,
+                    phone_number=phone_number,
                     registration_number=registration_number if registration_number else None,
                     is_active=False  # Require email verification
                 )
@@ -1428,10 +1456,18 @@ def admin_analytics(request):
     
     return render(request, 'accounts/admin_analytics.html', context)
 
-@admin_required
+@staff_or_admin_required
 def admin_analytics_pdf(request):
     """Generate and download admin analytics report as PDF or Word document"""
     format_type = request.GET.get('format', 'pdf')  # Default to PDF
+    from reportlab.lib.pagesizes import letter
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+    from docx import Document
+    from docx.shared import Inches, Pt
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
     
     all_complaints = Complaint.objects.all()
     

@@ -11,10 +11,14 @@ def student_required(view_func):
     def wrapper(request, *args, **kwargs):
         if request.user.role != 'student':
             messages.error(request, 'Only students can access this feature')
-            return redirect('student_dashboard') if request.user.role == 'student' else \
-                   redirect('staff_dashboard') if request.user.role == 'staff' else \
-                   redirect('hod_dashboard') if request.user.role == 'hod' else \
-                   redirect('admin_dashboard')
+            if request.user.role == 'staff':
+                return redirect('staff_dashboard')
+            elif request.user.role == 'hod':
+                return redirect('hod_dashboard')
+            elif request.user.role == 'admin':
+                return redirect('admin_dashboard')
+            else:
+                return redirect('login')
         return view_func(request, *args, **kwargs)
     return wrapper
 
@@ -25,9 +29,12 @@ def staff_required(view_func):
     def wrapper(request, *args, **kwargs):
         if request.user.role not in ['staff', 'hod']:
             messages.error(request, 'Only staff can access this feature')
-            return redirect('student_dashboard') if request.user.role == 'student' else \
-                   redirect('hod_dashboard') if request.user.role == 'hod' else \
-                   redirect('admin_dashboard')
+            if request.user.role == 'student':
+                return redirect('student_dashboard')
+            elif request.user.role == 'admin':
+                return redirect('admin_dashboard')
+            else:
+                return redirect('login')
         return view_func(request, *args, **kwargs)
     return wrapper
 
@@ -38,10 +45,14 @@ def admin_required(view_func):
     def wrapper(request, *args, **kwargs):
         if request.user.role != 'admin':
             messages.error(request, 'Only administrators can access this feature')
-            return redirect('student_dashboard') if request.user.role == 'student' else \
-                   redirect('staff_dashboard') if request.user.role == 'staff' else \
-                   redirect('hod_dashboard') if request.user.role == 'hod' else \
-                   redirect('admin_dashboard')
+            if request.user.role == 'student':
+                return redirect('student_dashboard')
+            elif request.user.role == 'staff':
+                return redirect('staff_dashboard')
+            elif request.user.role == 'hod':
+                return redirect('hod_dashboard')
+            else:
+                return redirect('login')
         return view_func(request, *args, **kwargs)
     return wrapper
 

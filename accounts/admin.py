@@ -7,6 +7,7 @@ class UserAdmin(admin.ModelAdmin):
     list_display = (
         'username',
         'email',
+        'phone_number',
         'role',
         'department',
         'is_email_verified',
@@ -17,7 +18,7 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ('username', 'email', 'registration_number')
     fieldsets = (
         ('Authentication', {'fields': ('username', 'password')}),
-        ('Personal Info', {'fields': ('first_name', 'last_name', 'email')}),
+        ('Personal Info', {'fields': ('first_name', 'last_name', 'email', 'phone_number')}),
         ('User Role', {'fields': ('role', 'registration_number', 'department')}),
         ('Email Verification', {'fields': ('is_email_verified',)}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),

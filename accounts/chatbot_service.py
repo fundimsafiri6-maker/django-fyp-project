@@ -11,9 +11,15 @@ except ImportError:
     GENAI_AVAILABLE = False
     logger.warning("google.genai not installed. Chatbot will use fallback mode.")
 
-
 GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
-GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-2.0-flash')
+
+FALLBACK_MODELS = [
+    'gemini-2.5-flash',
+    'gemini-3.1-flash-lite',
+    'gemini-3-flash-preview',
+    'gemini-3.5-flash',
+    'gemini-2.0-flash',
+]
 
 SYSTEM_PROMPT = """You are an AI assistant for the University of Dodoma (UDOM), College of Informatics and Virtual Education (CIVE) complaint management system. Your role is to help students and staff with questions about:
 
@@ -54,54 +60,60 @@ def get_chat_response(user_message, conversation_history=None):
     if not GENAI_AVAILABLE or not GEMINI_API_KEY:
         return generate_fallback_response(user_message)
 
-    try:
-        client = Client(api_key=GEMINI_API_KEY)
+    last_error = None
+    for model_name in FALLBACK_MODELS:
+        try:
+            client = Client(api_key=GEMINI_API_KEY)
 
-        contents = []
-        if conversation_history:
-            for msg in conversation_history:
-                role = msg.get("role", "user")
-                parts = msg.get("parts", [])
-                text = ""
-                for part in parts:
-                    if isinstance(part, dict) and "text" in part:
-                        text = part["text"]
-                    elif isinstance(part, str):
-                        text = part
-                if text:
-                    contents.append(types.Content(
-                        role=role,
-                        parts=[types.Part.from_text(text=text)]
-                    ))
+            contents = []
+            if conversation_history:
+                for msg in conversation_history:
+                    role = msg.get("role", "user")
+                    parts = msg.get("parts", [])
+                    text = ""
+                    for part in parts:
+                        if isinstance(part, dict) and "text" in part:
+                            text = part["text"]
+                        elif isinstance(part, str):
+                            text = part
+                    if text:
+                        contents.append(types.Content(
+                            role=role,
+                            parts=[types.Part.from_text(text=text)]
+                        ))
 
-        contents.append(types.Content(
-            role="user",
-            parts=[types.Part.from_text(text=user_message)]
-        ))
+            contents.append(types.Content(
+                role="user",
+                parts=[types.Part.from_text(text=user_message)]
+            ))
 
-        config = types.GenerateContentConfig(
-            system_instruction=SYSTEM_PROMPT,
-            temperature=0.7,
-            max_output_tokens=800,
-            top_p=0.9,
-            top_k=40,
-        )
+            config = types.GenerateContentConfig(
+                system_instruction=SYSTEM_PROMPT,
+                temperature=0.7,
+                max_output_tokens=800,
+                top_p=0.9,
+                top_k=40,
+            )
 
-        response = client.models.generate_content(
-            model=GEMINI_MODEL,
-            contents=contents,
-            config=config,
-        )
+            response = client.models.generate_content(
+                model=model_name,
+                contents=contents,
+                config=config,
+            )
 
-        return {
-            'answer': response.text,
-            'sources': [],
-            'from_gemini': True,
-        }
+            return {
+                'answer': response.text,
+                'sources': [],
+                'from_gemini': True,
+            }
 
-    except Exception as e:
-        logger.error(f"Gemini API error: {e}")
-        return generate_fallback_response(user_message)
+        except Exception as e:
+            last_error = e
+            logger.warning(f"Gemini model {model_name} failed: {e}")
+            continue
+
+    logger.error(f"All Gemini models failed. Last error: {last_error}")
+    return generate_fallback_response(user_message)
 
 
 def generate_fallback_response(query):
@@ -170,28 +182,19 @@ def generate_fallback_response(query):
     elif 'contact' in query_lower or 'phone' in query_lower or 'email' in query_lower or 'support' in query_lower:
         return {
             'answer': "**Contact Information (UDOM CIVE)**\n\n"
+                      "- **Support Email**: fmsafiri478@gmail.com\n"
+                      "- **Support Phone**: +255763394096\n"
                       "- **ICT Help Desk**: ithelpdesk@udom.ac.tz\n"
                       "- **Academic Office**: academics@cive.udom.ac.tz\n"
-                      "- **Dean's Office**: dean.cive@udom.ac.tz\n"
-                      "- **Library**: library@udom.ac.tz\n"
-                      "- **Main Campus**: +255 700 000 000\n\n"
-                      "Office Hours: Monday-Friday, 8:00 AM - 5:00 PM EAT",
+                      "- **Office Hours**: Monday-Friday, 8:00 AM - 5:00 PM EAT",
             'sources': [],
             'from_gemini': False,
         }
     else:
         return {
-            'answer': f"I'm your UDOM CIVE AI Assistant. I can help with:\n\n"
-                      "🔹 **ICT Issues**: Network, portal, password, system errors\n"
-                      "🔹 **Academic Issues**: Registration, exams, courses, grades\n"
-                      "🔹 **Complaints**: How to submit, track, and resolve\n"
-                      "🔹 **Contact Info**: Department emails and phone numbers\n\n"
-                      f"Try asking something like:\n"
-                      "- 'How do I reset my portal password?'\n"
-                      "- 'The campus WiFi is not working'\n"
-                      "- 'How to register for courses'\n"
-                      "- 'Submit a complaint about a lecturer'\n\n"
-                      "Or contact: support@udom-cive.edu | +255 700 000 000",
+            'answer': "I'm sorry, I'm currently unable to process your request with the AI service. Please try again later or contact support.\n\n"
+                      "**Support Email**: fmsafiri478@gmail.com\n"
+                      "**Support Phone**: +255763394096",
             'sources': [],
             'from_gemini': False,
         }

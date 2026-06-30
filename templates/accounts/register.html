@@ -501,6 +501,15 @@
                     </div>
 
                     <div class="form-group">
+                        <label><i class="fas fa-phone"></i> Phone Number</label>
+                        <input type="tel" name="phone_number" placeholder="e.g. 2557XXXXXXXX" 
+                               value="{{ phone_number }}" required>
+                        <small style="color: #888; font-size: 12px;word-wrap:break-word;">
+                            Tanzanian number format: 255 followed by 9 digits (e.g. 255712345678)
+                        </small>
+                    </div>
+
+                    <div class="form-group">
                         <label><i class="fas fa-lock"></i> Password</label>
                         <div class="password-group">
                             <input type="password" id="password" name="password" 

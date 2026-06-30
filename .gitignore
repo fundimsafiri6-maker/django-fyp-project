@@ -1,32 +1,69 @@
 # Environment
 .env
+.env.local
+*.key
+*.pem
+*.cert
+
 # Python
 __pycache__/
 *.py[cod]
 *.pyo
+*.egg
 *.egg-info/
+*.whl
 dist/
 build/
+*.manifest
+*.spec
 
 # Virtual environment
 venv/
 .venv/
+env/
+virtualenv/
 
 # Django
 *.db
 db.sqlite3
 staticfiles/
 media/
+uploads/
+local_settings.py
+instance/
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+*.swn
+.project
+.pydevproject
+.history/
 
 # OS
 Thumbs.db
+ehthumbs.db
+Desktop.ini
 .DS_Store
 
-# Project specific
+# Testing
+.coverage
+coverage/
+coverage.xml
+htmlcov/
+.pytest_cache/
+
+# Logs & temp
 *.log
+*.pid
+*.seed
+*.bak
+
+# Generated
+node_modules/
+.next/
+
+# Scratch / tests
+_diag.py

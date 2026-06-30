@@ -18,7 +18,6 @@ class Complaint(models.Model):
         ('Low', 'Low'),
         ('Medium', 'Medium'),
         ('High', 'High'),
-        ('Urgent', 'Urgent'),
     )
 
     DEPARTMENT_CHOICES = (

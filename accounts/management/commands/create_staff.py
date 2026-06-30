@@ -5,8 +5,8 @@ class Command(BaseCommand):
     help = 'Create sample staff users for all departments'
 
     def handle(self, *args, **options):
-departments = {
-             'academic': ['Dr. Johnson', 'Prof. Smith'],
+        departments = {
+             'academic': ['Lucy', 'Dr. Johnson', 'Prof. Smith'],
              'ict': ['Tech Support Lead', 'System Admin'],
              'other': ['Admin Officer', 'Records Manager', 'Student Counselor', 'Welfare Officer']
          }
