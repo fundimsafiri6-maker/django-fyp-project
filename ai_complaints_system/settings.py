@@ -48,8 +48,9 @@ if not CSRF_TRUSTED_ORIGINS or CSRF_TRUSTED_ORIGINS == ['']:
     if DEBUG:
         CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://127.0.0.1:8000']
     else:
-        # In production, allow all HTTPS origins if not specified
-        CSRF_TRUSTED_ORIGINS = ['https://*']
+        # In production, get from ALLOWED_HOSTS or use wildcard
+        allowed_hosts = os.environ.get('ALLOWED_HOSTS', '*').split(',')
+        CSRF_TRUSTED_ORIGINS = [f"https://{host.strip()}" if host.strip() != '*' else 'https://*' for host in allowed_hosts]
 CSRF_COOKIE_NAME = 'csrftoken'
 CSRF_COOKIE_PATH = '/'
 CSRF_COOKIE_SAMESITE = 'Lax'

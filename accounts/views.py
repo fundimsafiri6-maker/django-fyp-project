@@ -785,13 +785,19 @@ def register_view(request):
         elif User.objects.filter(email__iexact=email).exists():  # Case-insensitive check
             errors.append("Email already registered")
         
-        # Phone number validation
+        # Phone number validation (more flexible)
         if not phone_number:
             errors.append("Phone number is required")
-        elif not re.match(r'^\+?255\d{9}$', phone_number):
-            errors.append("Phone number must be a valid Tanzanian number (e.g. 2557XXXXXXXX or +2557XXXXXXXX)")
-        elif User.objects.filter(phone_number=phone_number).exists():
-            errors.append("Phone number already registered")
+        else:
+            # Normalize phone number - remove spaces, dashes, parentheses
+            phone_normalized = re.sub(r'[\s\-\(\)]', '', phone_number)
+            # Check if it matches Tanzanian format (with or without +)
+            if not re.match(r'^\+?255\d{9}$', phone_normalized):
+                errors.append("Phone number must be a valid Tanzanian number (e.g. 2557XXXXXXXX or +2557XXXXXXXX)")
+            else:
+                phone_number = phone_normalized  # Use normalized version
+                if User.objects.filter(phone_number=phone_number).exists():
+                    errors.append("Phone number already registered")
         
         # Password validation
         if not password:
